@@ -1,0 +1,16 @@
+-----------------------------------------------------------
+K2HDKC DBaaS Command Line Interface - VERSION_NUMBER
+
+Copyright 2021 Yahoo! Japan Corporation.
+
+The K2HDKC DBaaS CLI (Command Line Interface of Database as a
+Service for K2HDKC) is a tool for building a K2HDKC cluster
+in conjunction with K2HR3.
+The Trove version of K2HDKC DBaaS is available, but this
+K2HDKC DBaaS CLI allows you to build K2HDKC clusters without
+the need for a Trove system.
+With the basic components of OpenStack and the K2HR3 system
+that works with it, you can easily build a K2HD KC cluster
+using the K2HDKC DBaaS CLI.
+
+This software is released under the MIT License.

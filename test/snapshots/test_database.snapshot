@@ -1,0 +1,117 @@
+TEST CASE : (1) Normal : Create OpenStack Unscoped Token
+TEST_USER_OPENSTACK_UNSCOPED_TOKEN
+
+TEST CASE : (2) Normal : Create OpenStack Scoped Token
+TEST_USER_OPENSTACK_SCOPED_TOKEN
+
+TEST CASE : (3) Normal : Create Cluster
+Succeed : Phase : Create "testcluster" Resource
+Succeed : Phase : Create "testcluster/server" Resource
+Succeed : Phase : Create "testcluster/slave" Resource
+Succeed : Phase : Create "testcluster" Policy
+Succeed : Phase : Create "testcluster" Role
+Succeed : Phase : Create "testcluster/server" Role
+Succeed : Phase : Create "testcluster/slave" Role
+Succeed : Registration of cluster "testcluster" with K2HR3 is complete
+
+TEST CASE : (4) Normal : Add server host to cluster
+Succeed : Add server host(TESTSERVER - "TESTSERVER_ID") for testcluster cluster.
+
+TEST CASE : (5) Normal : Add slave host to cluster
+Succeed : Add slave host(TESTSLAVE - "TESTSERVER_ID") for testcluster cluster.
+
+TEST CASE : (6) Normal : Delete host to cluster
+Succeed : Delete host TESTSERVER from testcluster cluster(OpenStack and K2HR3).
+
+TEST CASE : (7) Normal : Show server host list
+[
+    {
+        "name": "TESTSERVER",
+        "id": "TESTSERVER_ID",
+        "ip": "127.0.0.1"
+    }
+]
+
+TEST CASE : (8) Normal : Show slave host list
+[
+    {
+        "name": "TESTSLAVE",
+        "id": "TESTSLAVE_ID",
+        "ip": "127.0.0.1"
+    }
+]
+
+TEST CASE : (9) Normal : Show server configuration
+{
+    "string": "TEST_DUMMY_RESOURCE_FOR_SERVER",
+    "object": null,
+    "keys": {
+        "cluster-name": "testcluster",
+        "chmpx-server-port": 98020,
+        "chmpx-server-ctlport": 98021,
+        "chmpx-slave-ctlport": 98031,
+        "k2hdkc-dbaas-add-user": 1,
+        "k2hdkc-dbaas-proc-user": "testrunner",
+        "chmpx-mode": "SERVER",
+        "k2hr3-init-packages": "",
+        "k2hr3-init-packagecloud-packages": "k2hdkc-dbaas-override-conf,k2hr3-get-resource,chmpx,k2hdkc",
+        "k2hr3-init-systemd-packages": "chmpx.service,k2hdkc.service,k2hr3-get-resource.timer",
+        "host_key": "127.0.0.1,0,TESTSERVER_ID",
+        "one_host": {
+            "host": "127.0.0.1",
+            "port": 0,
+            "extra": "openstack-auto-v1",
+            "tag": "TESTSERVER",
+            "cuk": "TESTSERVER_ID"
+        }
+    },
+    "expire": null
+}
+
+TEST CASE : (10) Normal : Show slave configuration
+{
+    "string": "TEST_DUMMY_RESOURCE_FOR_SLAVE",
+    "object": null,
+    "keys": {
+        "cluster-name": "testcluster",
+        "chmpx-server-port": 98020,
+        "chmpx-server-ctlport": 98021,
+        "chmpx-slave-ctlport": 98031,
+        "k2hdkc-dbaas-add-user": 1,
+        "k2hdkc-dbaas-proc-user": "testrunner",
+        "chmpx-mode": "SLAVE",
+        "k2hr3-init-packages": "",
+        "k2hr3-init-packagecloud-packages": "k2hdkc-dbaas-override-conf,k2hr3-get-resource,chmpx,k2hdkc",
+        "k2hr3-init-systemd-packages": "chmpx.service,k2hdkc.service,k2hr3-get-resource.timer",
+        "host_key": "127.0.0.1,0,TESTSLAVE_ID",
+        "one_host": {
+            "host": "127.0.0.1",
+            "port": 0,
+            "extra": "openstack-auto-v1",
+            "tag": "TESTSLAVE",
+            "cuk": "TESTSLAVE_ID"
+        }
+    },
+    "expire": null
+}
+
+TEST CASE : (11) Normal : Delete Cluster
+[NOTICE] Delete all of the cluster configuration, data, cluster hosts, and so on.
+Succeed : Delete all testcluster cluster(OpenStack and K2HR3).
+
+TEST CASE : (12) Normal : List Images
+[
+    {
+        "name": "TEST_IMAGE",
+        "id": "TEST_IMAGE_ID"
+    }
+]
+
+TEST CASE : (13) Normal : List Flavors
+[
+    {
+        "name": "TEST_FLAVOR",
+        "id": "TEST_FLAVOR_ID"
+    }
+]
+

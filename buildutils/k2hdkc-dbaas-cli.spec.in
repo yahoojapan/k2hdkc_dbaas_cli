@@ -1,0 +1,102 @@
+#
+# K2HDKC DBaaS Command Line Interface - K2HR3 CLI Plugin
+#
+# Copyright 2021 Yahoo! Japan Corporation.
+#
+# K2HDKC DBaaS is a DataBase as a Service provided by Yahoo! JAPAN
+# which is built K2HR3 as a backend and provides services in
+# cooperation with OpenStack.
+# The Override configuration for K2HDKC DBaaS serves to connect the
+# components that make up the K2HDKC DBaaS. K2HDKC, K2HR3, CHMPX,
+# and K2HASH are components provided as AntPickax.
+#
+# For the full copyright and license information, please view
+# the license file that was distributed with this source code.
+#
+# AUTHOR:   Takeshi Nakatani
+# CREATE:   Mon Mar 1 2021
+# REVISION:
+#
+
+#
+# Local macros/define
+#
+%if %{undefined package_revision}
+%global package_revision 1
+%endif
+
+%if %{undefined make_build}
+%global make_build %{__make} %{?_smp_mflags}
+%endif
+
+%if %{undefined autosetup}
+%global autosetup %setup -q
+%endif
+
+%global gittag v@VERSION@
+
+%if %{undefined make_check}
+%global make_check 1
+%endif
+
+#
+# main package
+#
+Summary: @SHORTDESC@
+Name: @PACKAGE_NAME@
+Version: @VERSION@
+Release: %{package_revision}%{?dist}
+License: @PKGLICENSE@
+@RPMPKG_GROUP@
+URL: https://@GIT_DOMAIN@/@GIT_ORG@/@PACKAGE_NAME@
+Source0: https://@GIT_DOMAIN@/@GIT_ORG@/@PACKAGE_NAME@/archive/%{gittag}/%{name}-%{version}.tar.gz
+Requires: k2hr3-cli
+BuildRequires: git-core make
+BuildArch: noarch
+
+%description
+The K2HDKC DBaaS CLI (Command Line Interface of Database as a
+Service for K2HDKC) is a tool for building a K2HDKC cluster
+in conjunction with K2HR3.
+The Trove version of K2HDKC DBaaS is available, but this
+K2HDKC DBaaS CLI allows you to build K2HDKC clusters without
+the need for a Trove system.
+With the basic components of OpenStack and the K2HR3 system
+that works with it, you can easily build a K2HD KC cluster
+using the K2HDKC DBaaS CLI.
+
+%prep
+%autosetup -n %{name}-%{version}
+
+%build
+./autogen.sh
+%configure --disable-static @CONFIGUREWITHOPT@
+make build
+
+%install
+%make_install
+install -D -m 444 src/libexec/database/CREDIT                            %{buildroot}/usr/libexec/k2hr3/database/CREDIT
+install -D -m 444 src/libexec/database/VERSION                           %{buildroot}/usr/libexec/k2hr3/database/VERSION
+install -D -m 444 src/libexec/database/k2hdkc_dbaas_create_host.templ    %{buildroot}/usr/libexec/k2hr3/database/k2hdkc_dbaas_create_host.templ
+install -D -m 444 src/libexec/database/k2hdkc_dbaas_resource_keys.config %{buildroot}/usr/libexec/k2hr3/database/k2hdkc_dbaas_resource_keys.config
+install -D -m 444 src/libexec/database/k2hdkc_dbaas_resource.templ       %{buildroot}/usr/libexec/k2hr3/database/k2hdkc_dbaas_resource.templ
+install -D -m 444 src/libexec/database/command.sh                        %{buildroot}/usr/libexec/k2hr3/database/command.sh
+install -D -m 444 src/libexec/database/functions.sh                      %{buildroot}/usr/libexec/k2hr3/database/functions.sh
+install -D -m 444 src/libexec/database/help.sh                           %{buildroot}/usr/libexec/k2hr3/database/help.sh
+install -D -m 444 src/libexec/database/openstack.sh                      %{buildroot}/usr/libexec/k2hr3/database/openstack.sh
+install -D -m 444 src/libexec/database/options.sh                        %{buildroot}/usr/libexec/k2hr3/database/options.sh
+install -D -m 444 src/libexec/database/summary.sh                        %{buildroot}/usr/libexec/k2hr3/database/summary.sh
+install -D -m 444 src/libexec/database/variables.sh                      %{buildroot}/usr/libexec/k2hr3/database/variables.sh
+
+%if %{make_check}
+%check
+%{__make} check
+%endif
+
+%files
+%license COPYING
+%doc README AUTHORS ChangeLog
+/usr/libexec/k2hr3/database/*
+
+%changelog
+@RPMCHANGELOG@

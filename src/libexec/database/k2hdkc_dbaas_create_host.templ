@@ -1,0 +1,57 @@
+#
+# K2HDKC DBaaS Command Line Interface - K2HR3 CLI Plugin
+#
+# Copyright 2021 Yahoo! Japan Corporation.
+#
+# K2HDKC DBaaS is a DataBase as a Service provided by Yahoo! JAPAN
+# which is built K2HR3 as a backend and provides services in
+# cooperation with OpenStack.
+# The Override configuration for K2HDKC DBaaS serves to connect the
+# components that make up the K2HDKC DBaaS. K2HDKC, K2HR3, CHMPX,
+# and K2HASH are components provided as AntPickax.
+#
+# For the full copyright and license information, please view
+# the license file that was distributed with this source code.
+#
+# AUTHOR:   Takeshi Nakatani
+# CREATE:   Mon Mar 1 2021
+# REVISION:
+#
+
+#---------------------------------------------------------------------
+# Post data template for launching
+#---------------------------------------------------------------------
+#
+# The K2HDKC DBAAS CLI uses the OpenStack (Nova) Compute API to launch
+# a Virtual Machine.
+#
+# This file sets the POST data template to use when calling OpenStack
+# Compute API.
+# By default, only the "server name", "image id", "flavor id",
+# "user data", "security group name", and "Keypair name" are specified.
+# If you want to pass any other value, you can change the following
+# JSON data.
+# However, the value set by default cannot be described.
+# (Do not change special keywords.)
+# Be sure to pass them as options.
+#
+
+{
+	"server":{
+		__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_SECGRP_SET__
+		__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_KEYPAIR_SET__
+		"name":"__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_SERVER_NAME__",
+		"imageRef":"__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_IMAGE_ID__",
+		"flavorRef":"__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_FLAVOR_ID__",
+		"user_data":"__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_USER_DATA__"
+	}
+}
+
+#
+# Local variables:
+# tab-width: 4
+# c-basic-offset: 4
+# End:
+# vim600: expandtab sw=4 ts=4 fdm=marker
+# vim<600: expandtab sw=4 ts=4
+#
