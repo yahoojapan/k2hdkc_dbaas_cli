@@ -485,25 +485,16 @@ parse_dbaas_option()
 		K2HR3CLI_OPENSTACK_USER=${_OPT_TMP_DBAAS_OPENSTACK_USER}
 		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_USER_ID=""
-	else
-		# shellcheck disable=SC2034
-		K2HR3CLI_OPENSTACK_USER=${K2HR3CLI_USER}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_PASS}" ]; then
 		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_PASS=${_OPT_TMP_DBAAS_OPENSTACK_PASS}
-	else
-		# shellcheck disable=SC2034
-		K2HR3CLI_OPENSTACK_PASS=${K2HR3CLI_PASS}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_TENANT}" ]; then
 		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_TENANT=${_OPT_TMP_DBAAS_OPENSTACK_TENANT}
 		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_TENANT_ID=""
-	else
-		# shellcheck disable=SC2034
-		K2HR3CLI_OPENSTACK_TENANT=${K2HR3CLI_TENANT}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NO_SECGRP}" ]; then
 		# shellcheck disable=SC2034

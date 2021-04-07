@@ -62,13 +62,25 @@ complement_op_user_name()
 		#
 		# Reset user id / passphrase / tokens
 		#
-		K2HR3CLI_OPENSTACK_USER_ID=""
-		K2HR3CLI_OPENSTACK_PASS=""
-		K2HR3CLI_OPENSTACK_TOKEN=""
-		K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
-
 		if [ "X${K2HR3CLI_USER}" != "X" ]; then
-			K2HR3CLI_OPENSTACK_USER=${K2HR3CLI_USER}
+			if [ "X${K2HR3CLI_OPT_INTERACTIVE}" = "X1" ]; then
+				_TOKEN_LIB_COMFIRM_TMP=""
+				completion_variable "_TOKEN_LIB_COMFIRM_TMP" "Would you use the K2HR3 User(${K2HR3CLI_USER}) as an OpenStack User? (y/n): " 1
+				if [ $? -eq 0 ]; then
+					if [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xy" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xyes" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XY" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XYES" ]; then
+						K2HR3CLI_OPENSTACK_USER=${K2HR3CLI_USER}
+					fi
+				fi
+			fi
+		fi
+
+		#
+		# Re-check
+		#
+		if [ "X${K2HR3CLI_OPENSTACK_USER}" = "X" ]; then
+			K2HR3CLI_OPENSTACK_USER_ID=""
+			K2HR3CLI_OPENSTACK_TOKEN=""
+			K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
 		fi
 	fi
 
@@ -99,11 +111,24 @@ complement_op_user_passphrase()
 		#
 		# Reset tokens
 		#
-		K2HR3CLI_OPENSTACK_TOKEN=""
-		K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
-
 		if [ "X${K2HR3CLI_PASS}" != "X" ]; then
-			K2HR3CLI_OPENSTACK_PASS=${K2HR3CLI_PASS}
+			if [ "X${K2HR3CLI_OPT_INTERACTIVE}" = "X1" ]; then
+				_TOKEN_LIB_COMFIRM_TMP=""
+				completion_variable "_TOKEN_LIB_COMFIRM_TMP" "Would you use the K2HR3 User passphrase as an OpenStack User? (y/n): " 1
+				if [ $? -eq 0 ]; then
+					if [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xy" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xyes" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XY" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XYES" ]; then
+						K2HR3CLI_OPENSTACK_PASS=${K2HR3CLI_PASS}
+					fi
+				fi
+			fi
+		fi
+
+		#
+		# Re-check
+		#
+		if [ "X${K2HR3CLI_OPENSTACK_PASS}" = "X" ]; then
+			K2HR3CLI_OPENSTACK_TOKEN=""
+			K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
 		fi
 	fi
 
@@ -135,12 +160,24 @@ complement_op_tenant()
 		#
 		# Reset tenant id / tokens
 		#
-		K2HR3CLI_OPENSTACK_TENANT_ID=""
-		K2HR3CLI_OPENSTACK_TOKEN=""
-		K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
-
 		if [ "X${K2HR3CLI_TENANT}" != "X" ]; then
-			K2HR3CLI_OPENSTACK_TENANT=${K2HR3CLI_TENANT}
+			if [ "X${K2HR3CLI_OPT_INTERACTIVE}" = "X1" ]; then
+				_TOKEN_LIB_COMFIRM_TMP=""
+				completion_variable "_TOKEN_LIB_COMFIRM_TMP" "Would you use the K2HR3 Tenant(${K2HR3CLI_TENANT}) as an OpenStack Tenant(Project)? (y/n): " 1
+				if [ $? -eq 0 ]; then
+					if [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xy" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "Xyes" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XY" ] || [ "X${_TOKEN_LIB_COMFIRM_TMP}" = "XYES" ]; then
+						K2HR3CLI_OPENSTACK_TENANT=${K2HR3CLI_TENANT}
+					fi
+				fi
+			fi
+		fi
+
+		#
+		# Re-check
+		#
+		if [ "X${K2HR3CLI_OPENSTACK_TENANT}" = "X" ]; then
+			K2HR3CLI_OPENSTACK_TENANT_ID=""
+			K2HR3CLI_OPENSTACK_SCOPED_TOKEN=""
 		fi
 	fi
 	#
