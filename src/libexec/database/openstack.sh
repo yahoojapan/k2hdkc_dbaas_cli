@@ -21,16 +21,6 @@
 #--------------------------------------------------------------
 # Variables
 #--------------------------------------------------------------
-#TEST
-#	#
-#	# Endpoints for openstack services
-#	#
-#	# These values are set when the Token is verified or the Scoped Token is issued.
-#	#
-#	K2HR3CLI_OPENSTACK_NOVA_URI=""
-#	K2HR3CLI_OPENSTACK_GLANCE_URI=""
-#	K2HR3CLI_OPENSTACK_NEUTRON_URI=""
-
 #
 # Security Group Name
 #
@@ -430,6 +420,23 @@ get_op_service_ep()
 			_DATABASE_RESULT_EP_LIST=${JSONPARSER_FIND_KEY_VAL}
 
 			for _DATABASE_RESULT_EP_POS in ${_DATABASE_RESULT_EP_LIST}; do
+				_DATABASE_RESULT_EP_POS_RAW=$(pecho -n "${_DATABASE_RESULT_EP_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
+				#
+				# catalog[x]->endpoints[x]->interface
+				#
+				jsonparser_get_key_value "%\"catalog\"%${_DATABASE_RESULT_CATALOG_POS_RAW}%\"endpoints\"%${_DATABASE_RESULT_EP_POS_RAW}%\"interface\"%" "${_DBAAS_OP_PARSED_FILE}"
+				if [ $? -ne 0 ]; then
+					prn_dbg "(get_op_service_ep) Failed to get ${_DBAAS_DEL_ROLE_PATH} catalog[${_DATABASE_RESULT_CATALOG_POS_RAW}]->endpoints[${_DATABASE_RESULT_EP_POS_RAW}]->interface."
+					continue
+				fi
+				_DBAAS_FOUND_SERVICE_EP_INTERFACE=$(to_lower "${JSONPARSER_FIND_STR_VAL}")
+				if [ "X${_DBAAS_FOUND_SERVICE_EP_INTERFACE}" != "Xpublic" ]; then
+					#
+					# Interface is not "public", thus skip this
+					#
+					continue
+				fi
+
 				#
 				# catalog[x]->endpoints[x]->url
 				#
