@@ -545,6 +545,7 @@ dbaas_create_role_token()
 # $4						: user data
 # $5						: keypair name(allow empty)
 # $6						: security group name(allow empty)
+# $7						: block device mapping parameter(optional)
 # $?						: result
 # Output					: json post data for launching host
 #
@@ -573,6 +574,11 @@ dbaas_get_openstack_launch_post_data()
 		_DBAAS_LAUNCH_DATA_SECGRP=""
 	else
 		_DBAAS_LAUNCH_DATA_SECGRP=$6
+	fi
+	if [ "X$7" = "X" ]; then
+		_DBAAS_LAUNCH_DATA_BLOCKDEVICE=""
+	else
+		_DBAAS_LAUNCH_DATA_BLOCKDEVICE=$7
 	fi
 
 	#
@@ -657,10 +663,25 @@ dbaas_get_openstack_launch_post_data()
 		#
 		_DBAAS_LAUNCH_DATA_KEYPAIR="\"key_name\":\"${_DBAAS_LAUNCH_DATA_KEYPAIR}\","
 	fi
+	if [ "X${_DBAAS_LAUNCH_DATA_BLOCKDEVICE}" != "X" ]; then
+		#
+		# Set Block Device Mapping(v2)
+		#	"block_device_mapping_v2":[{
+		#		"boot_index":"0",
+		#		"uuid":"f50825f7-da8e-4637-aa11-772ca964fe75",
+		#		"source_type":"image",
+		#		"volume_size":"40",
+		#		"destination_type":"volume",
+		#		"delete_on_termination":true
+		#	}],
+		#
+		_DBAAS_LAUNCH_DATA_BLOCKDEVICE="\"block_device_mapping_v2\":${_DBAAS_LAUNCH_DATA_BLOCKDEVICE},"
+	fi
 
 	_DATABASE_CREATE_HOST_DATA=$(pecho -n "${_DATABASE_CREATE_HOST_DATA}" | sed \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_SECGRP_SET__|${_DBAAS_LAUNCH_DATA_SECGRP}|" \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_KEYPAIR_SET__|${_DBAAS_LAUNCH_DATA_KEYPAIR}|" \
+			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_BLOCKDEVICE_SET__|${_DBAAS_LAUNCH_DATA_BLOCKDEVICE}|" \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_SERVER_NAME__|${_DBAAS_LAUNCH_DATA_SERVER_NAME}|" \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_IMAGE_ID__|${_DBAAS_LAUNCH_DATA_IMAGE_ID}|" \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_FLAVOR_ID__|${_DBAAS_LAUNCH_DATA_FLAVOR_ID}|" \
