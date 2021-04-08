@@ -1,3 +1,9 @@
+k2hdkc-dbaas-cli (1.0.2) trusty; urgency=low
+
+  * Added an option to specify a block device when launching VM - #4
+
+ -- Takeshi Nakatani <ggtakec@gmail.com>  Thu, 08 Apr 2021 16:09:04 +0900
+
 k2hdkc-dbaas-cli (1.0.1) trusty; urgency=low
 
   * Fixed to check the interface type of OpenStack Service endpoints - #2
