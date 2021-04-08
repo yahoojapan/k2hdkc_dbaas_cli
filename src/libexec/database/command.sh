@@ -850,7 +850,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 										"${K2HR3CLI_OPENSTACK_FLAVOR_ID}" \
 										"${_DATABASE_ADD_HOST_USD64}" \
 										"${K2HR3CLI_OPENSTACK_KEYPAIR}" \
-										"${_DATABASE_ADD_HOST_SECGRP}")
+										"${_DATABASE_ADD_HOST_SECGRP}" \
+										"${K2HR3CLI_OPENSTACK_BCLOKDEVICE}")
 
 	#
 	# Create Virtual Machine
