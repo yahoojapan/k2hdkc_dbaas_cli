@@ -27,7 +27,7 @@ EXTRA_DIST = RELEASE_VERSION @CONFIGURECUSTOM@
 # [NOTE]
 # Change the default target to build.
 #
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL = build
 
 # [CLEAN]
 # Use clean-local instead of CLEANFILES as it contains subdirectories and so on.
