@@ -1,23 +1,23 @@
-k2hdkc-dbaas-cli (1.0.3) trusty; urgency=low
+k2hdkc-dbaas-cli (1.0.3) unstable; urgency=low
 
   * Updated README.md for launch K2HDKC DBaaS K8S CLI - #6
 
  -- Takeshi Nakatani <ggtakec@gmail.com>  Thu, 30 Sep 2021 11:44:44 +0900
 
-k2hdkc-dbaas-cli (1.0.2) trusty; urgency=low
+k2hdkc-dbaas-cli (1.0.2) unstable; urgency=low
 
   * Added an option to specify a block device when launching VM - #4
 
  -- Takeshi Nakatani <ggtakec@gmail.com>  Thu, 08 Apr 2021 16:09:04 +0900
 
-k2hdkc-dbaas-cli (1.0.1) trusty; urgency=low
+k2hdkc-dbaas-cli (1.0.1) unstable; urgency=low
 
   * Fixed to check the interface type of OpenStack Service endpoints - #2
   * Updated interactive logic for values about OpenStack user... - #1
 
  -- Takeshi Nakatani <ggtakec@gmail.com>  Wed, 07 Apr 2021 11:48:01 +0900
 
-k2hdkc-dbaas-cli (1.0.0) trusty; urgency=low
+k2hdkc-dbaas-cli (1.0.0) unstable; urgency=low
 
   * First version
 
