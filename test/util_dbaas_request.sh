@@ -31,7 +31,7 @@ TESTDIR=$(cd "${_INIT_TESTDIR}/../test" || exit 1; pwd)
 #
 # Set own file path to K2HR3CLI_REQUEST_FILE if it is empty
 #
-if [ "X${K2HR3CLI_REQUEST_FILE}" = "X" ]; then
+if [ -z "${K2HR3CLI_REQUEST_FILE}" ]; then
 	export K2HR3CLI_REQUEST_FILE="${TESTDIR}/util_dbaas_request.sh"
 fi
 
@@ -59,11 +59,8 @@ K2HR3CLI_REQUEST_RESHEADER_FILE="/tmp/.${BINNAME}_$$_curl.header"
 #
 # Test for common values
 #
-# shellcheck disable=SC2034,SC2037
 _TEST_K2HR3_USER="test"
-# shellcheck disable=SC2034
 _TEST_K2HR3_PASS="password"
-# shellcheck disable=SC2034
 _TEST_K2HR3_TENANT="test1"
 _TEST_K2HDKC_CLUSTER_NAME="testcluster"
 
@@ -119,7 +116,7 @@ create_dummy_dbaas_response_sub()
 	# Check Parameters
 	#
 	_DUMMY_METHOD="$1"
-	if [ "X${_DUMMY_METHOD}" != "XGET" ] && [ "X${_DUMMY_METHOD}" != "XHEAD" ] && [ "X${_DUMMY_METHOD}" != "XPUT" ] && [ "X${_DUMMY_METHOD}" != "XPOST" ] && [ "X${_DUMMY_METHOD}" != "XDELETE" ]; then
+	if [ -z "${_DUMMY_METHOD}" ] || { [ "${_DUMMY_METHOD}" != "GET" ] && [ "${_DUMMY_METHOD}" != "HEAD" ] && [ "${_DUMMY_METHOD}" != "PUT" ] && [ "${_DUMMY_METHOD}" != "POST" ] && [ "${_DUMMY_METHOD}" != "DELETE" ]; }; then
 		prn_err "Unknown Method($1) options for calling requet."
 		return 2
 	fi
@@ -127,19 +124,15 @@ create_dummy_dbaas_response_sub()
 	_DUMMY_URL_FULL="$2"
 	_DUMMY_URL_PATH=$(echo "${_DUMMY_URL_FULL}" | sed -e 's/?.*$//g' -e 's/&.*$//g')
 
-	pecho -n "${_DUMMY_URL_FULL}" | grep -q '[?|&]'
-	if [ $? -eq 0 ]; then
+	if pecho -n "${_DUMMY_URL_FULL}" | grep -q '[?|&]'; then
 		_DUMMY_URL_ARGS=$(pecho -n "${_DUMMY_URL_FULL}" | sed -e 's/^.*?//g')
 	else
 		_DUMMY_URL_ARGS=""
 	fi
 	prn_dbg "(create_dummy_dbaas_response_sub) all url(${_DUMMY_METHOD}: ${_DUMMY_URL_FULL}) => url(${_DUMMY_METHOD}: ${_DUMMY_URL_PATH}) + args(${_DUMMY_URL_ARGS})"
 
-	# shellcheck disable=SC2034
 	_DUMMY_BODY_STRING="$3"
-	# shellcheck disable=SC2034
 	_DUMMY_BODY_FILE="$4"
-	# shellcheck disable=SC2034
 	_DUMMY_CONTENT_TYPE="$5"
 	if [ $# -le 5 ]; then
 		shift $#
@@ -156,29 +149,36 @@ create_dummy_dbaas_response_sub()
 	#
 	# Parse request
 	#
-	if [ "X${K2HR3CLI_OVERRIDE_URI}" != "X" ]; then
+	if [ -n "${K2HR3CLI_OVERRIDE_URI}" ]; then
 		#------------------------------------------------------
 		# Request for OpenStack API
 		#------------------------------------------------------
-		if [ "X${_DUMMY_URL_PATH}" = "X/v3/auth/tokens" ]; then
+		if [ -z "${_DUMMY_URL_PATH}" ]; then
+			K2HR3CLI_REQUEST_EXIT_CODE=400
+			prn_err "Unknown URL(OpenStack URI: empty)."
+			return 2
+
+		elif [ "${_DUMMY_URL_PATH}" = "/v3/auth/tokens" ]; then
 			#------------------------------------------------------
 			# OpenStack Token
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XPOST" ]; then
+			if [ -z "${_DUMMY_METHOD}" ]; then
+				K2HR3CLI_REQUEST_EXIT_CODE=400
+				prn_err "Unknown URL(OpenStack URI: empty: ${_DUMMY_URL_PATH})."
+				return 2
+
+			elif [ "${_DUMMY_METHOD}" = "POST" ]; then
 				if pecho -n "${_DUMMY_BODY_STRING}" | grep -q 'scope'; then
 					#
 					# Create OpenStack Scoped Token
 					#
-					pecho -n "${_DUMMY_BODY_STRING}" | grep 'scope' | grep 'project' | grep -q 'TEST_TENANT_ID'
-					if [ $? -ne 0 ]; then
-						# shellcheck disable=SC2034
+					if ! pecho -n "${_DUMMY_BODY_STRING}" | grep 'scope' | grep 'project' | grep -q 'TEST_TENANT_ID'; then
 						K2HR3CLI_REQUEST_EXIT_CODE=400
 						prn_err "Create OpenStack Scoped Token, Tenant id is not found."
 						return 2
 					fi
 
-					util_search_urlarg "nocatalog" "${_DUMMY_URL_ARGS}"
-					if [ $? -eq 0 ]; then
+					if util_search_urlarg "nocatalog" "${_DUMMY_URL_ARGS}"; then
 						_UTIL_DBAAS_RESPONSE_CONTENT="{\"token\":{\"audit_ids\":[\"TEST_TOKEN_AUDIT_ID\"],\"expires_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"is_domain\":false,\"issued_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"methods\":[\"token\",\"password\"],\"project\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_PROJECT_ID\",\"name\":\"demo\"},\"roles\":[{\"id\":\"TEST_MEMBER_ROLE_ID\",\"name\":\"member\"},{\"id\":\"TEST_READER_ROLE_ID\",\"name\":\"reader\"},{\"id\":\"TEST_OTHER_ROLE_ID\",\"name\":\"anotherrole\"}],\"user\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_USER_ID\",\"name\":\"test\",\"password_expires_at\":null}}}"
 					else
 						_UTIL_DBAAS_RESPONSE_CONTENT="{\"token\":{\"audit_ids\":[\"TEST_TOKEN_AUDIT_ID\"],\"catalog\":[{\"endpoints\":[{\"id\":\"TEST_OP_NOVA_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/compute/v2.1\"}],\"id\":\"TEST_OP_NOVA_MAIN_ID\",\"name\":\"nova\",\"type\":\"compute\"},{\"endpoints\":[{\"id\":\"TEST_OP_PUB_KEYSTONE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"},{\"id\":\"TEST_OP_ADMIN_KEYSTONE_ID\",\"interface\":\"admin\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"}],\"id\":\"TEST_OP_MAIN_KEYSTONE_ID\",\"name\":\"keystone\",\"type\":\"identity\"},{\"endpoints\":[{\"id\":\"TEST_OP_NEUTRON_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost:9696/\"}],\"id\":\"TEST_OP_MAIN_NEUTRON_ID\",\"name\":\"neutron\",\"type\":\"network\"},{\"endpoints\":[{\"id\":\"TEST_OP_GLANCE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/image\"}],\"id\":\"TEST_OP_MAIN_GLANCE_ID\",\"name\":\"glance\",\"type\":\"image\"}],\"expires_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"is_domain\":false,\"issued_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"methods\":[\"token\",\"password\"],\"project\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_PROJECT_ID\",\"name\":\"demo\"},\"roles\":[{\"id\":\"TEST_MEMBER_ROLE_ID\",\"name\":\"member\"},{\"id\":\"TEST_READER_ROLE_ID\",\"name\":\"reader\"},{\"id\":\"TEST_OTHER_ROLE_ID\",\"name\":\"anotherrole\"}],\"user\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_USER_ID\",\"name\":\"test\",\"password_expires_at\":null}}}"
@@ -196,7 +196,6 @@ create_dummy_dbaas_response_sub()
 					} > "${K2HR3CLI_REQUEST_RESHEADER_FILE}"
 
 
-					# shellcheck disable=SC2034
 					K2HR3CLI_REQUEST_EXIT_CODE=201
 
 				else
@@ -216,11 +215,10 @@ create_dummy_dbaas_response_sub()
 						pecho "Connection: close";
 					} > "${K2HR3CLI_REQUEST_RESHEADER_FILE}"
 
-					# shellcheck disable=SC2034
 					K2HR3CLI_REQUEST_EXIT_CODE=201
 				fi
 
-			elif [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			elif [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Get OpenStack Token Info
 				#
@@ -235,39 +233,35 @@ create_dummy_dbaas_response_sub()
 					# shellcheck disable=SC1083,SC2039
 					_TEST_ONE_TOKEN_HEADER=$(eval echo '$'{"${_TEST_ONE_TOKEN_HEADER_POS}"})
 					_TEST_OPENSTACK_TOKEN=$(pecho -n "${_TEST_ONE_TOKEN_HEADER}" | grep '^X-Auth-Token:' | sed -e 's/X-Auth-Token:[[:space:]]*\(.*\)[[:space:]]*$/\1/g')
-					if [ "X${_TEST_OPENSTACK_TOKEN}" = "XTEST_USER_OPENSTACK_UNSCOPED_TOKEN" ]; then
+					if [ -n "${_TEST_OPENSTACK_TOKEN}" ] && [ "${_TEST_OPENSTACK_TOKEN}" = "TEST_USER_OPENSTACK_UNSCOPED_TOKEN" ]; then
 						#
 						# Unscoped Token
 						#
 						_UTIL_DBAAS_RESPONSE_CONTENT="{\"token\":{\"audit_ids\":[\"TEST_TOKEN_AUDIT_ID\"],\"expires_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"issued_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_USER_ID\",\"name\":\"test\",\"password_expires_at\":null}}}"
 						pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-						# shellcheck disable=SC2034
 						K2HR3CLI_REQUEST_EXIT_CODE=200
 						return 0
 
 
-					elif [ "X${_TEST_OPENSTACK_TOKEN}" = "XTEST_USER_OPENSTACK_SCOPED_TOKEN" ]; then
+					elif [ -n "${_TEST_OPENSTACK_TOKEN}" ] && [ "${_TEST_OPENSTACK_TOKEN}" = "TEST_USER_OPENSTACK_SCOPED_TOKEN" ]; then
 						#
 						# Scoped Token
 						#
-						util_search_urlarg "nocatalog" "${_DUMMY_URL_ARGS}"
-						if [ $? -eq 0 ]; then
+						if util_search_urlarg "nocatalog" "${_DUMMY_URL_ARGS}"; then
 							_UTIL_DBAAS_RESPONSE_CONTENT="{\"token\":{\"audit_ids\":[\"TEST_TOKEN_AUDIT_ID\"],\"expires_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"is_domain\":false,\"issued_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"methods\":[\"token\",\"password\"],\"project\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_PROJECT_ID\",\"name\":\"demo\"},\"roles\":[{\"id\":\"TEST_MEMBER_ROLE_ID\",\"name\":\"member\"},{\"id\":\"TEST_READER_ROLE_ID\",\"name\":\"reader\"},{\"id\":\"TEST_OTHER_ROLE_ID\",\"name\":\"anotherrole\"}],\"user\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_USER_ID\",\"name\":\"test\",\"password_expires_at\":null}}}"
 						else
 							_UTIL_DBAAS_RESPONSE_CONTENT="{\"token\":{\"audit_ids\":[\"TEST_TOKEN_AUDIT_ID\"],\"catalog\":[{\"endpoints\":[{\"id\":\"TEST_OP_NOVA_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/compute/v2.1\"}],\"id\":\"TEST_OP_NOVA_MAIN_ID\",\"name\":\"nova\",\"type\":\"compute\"},{\"endpoints\":[{\"id\":\"TEST_OP_PUB_KEYSTONE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"},{\"id\":\"TEST_OP_ADMIN_KEYSTONE_ID\",\"interface\":\"admin\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"}],\"id\":\"TEST_OP_MAIN_KEYSTONE_ID\",\"name\":\"keystone\",\"type\":\"identity\"},{\"endpoints\":[{\"id\":\"TEST_OP_NEUTRON_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost:9696/\"}],\"id\":\"TEST_OP_MAIN_NEUTRON_ID\",\"name\":\"neutron\",\"type\":\"network\"},{\"endpoints\":[{\"id\":\"TEST_OP_GLANCE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/image\"}],\"id\":\"TEST_OP_MAIN_GLANCE_ID\",\"name\":\"glance\",\"type\":\"image\"}],\"expires_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"is_domain\":false,\"issued_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"methods\":[\"token\",\"password\"],\"project\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_PROJECT_ID\",\"name\":\"demo\"},\"roles\":[{\"id\":\"TEST_MEMBER_ROLE_ID\",\"name\":\"member\"},{\"id\":\"TEST_READER_ROLE_ID\",\"name\":\"reader\"},{\"id\":\"TEST_OTHER_ROLE_ID\",\"name\":\"anotherrole\"}],\"user\":{\"domain\":{\"id\":\"default\",\"name\":\"Default\"},\"id\":\"TEST_USER_ID\",\"name\":\"test\",\"password_expires_at\":null}}}"
 						fi
 						pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 						
-						# shellcheck disable=SC2034
 						K2HR3CLI_REQUEST_EXIT_CODE=200
 						return 0
 
-					elif [ "X${_TEST_OPENSTACK_TOKEN}" != "X" ]; then
+					elif [ -n "${_TEST_OPENSTACK_TOKEN}" ]; then
 						#
 						# Unknown token string -> so it returns expired
 						#
-						# shellcheck disable=SC2034
 						K2HR3CLI_REQUEST_EXIT_CODE=400
 						prn_err "Get OpenStack Token information, token is unknown(${_TEST_OPENSTACK_TOKEN})."
 						return 2
@@ -277,17 +271,16 @@ create_dummy_dbaas_response_sub()
 				return 2
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/v3/auth/catalog" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/v3/auth/catalog" ]; then
 			#------------------------------------------------------
 			# OpenStack Endpoint Catalog
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Get OpenStack Token Info
 				#
@@ -299,12 +292,10 @@ create_dummy_dbaas_response_sub()
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"catalog\":[{\"endpoints\":[{\"id\":\"TEST_OP_NOVA_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/compute/v2.1\"}],\"id\":\"TEST_OP_NOVA_MAIN_ID\",\"name\":\"nova\",\"type\":\"compute\"},{\"endpoints\":[{\"id\":\"TEST_OP_PUB_KEYSTONE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"},{\"id\":\"TEST_OP_ADMIN_KEYSTONE_ID\",\"interface\":\"admin\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/identity\"}],\"id\":\"TEST_OP_MAIN_KEYSTONE_ID\",\"name\":\"keystone\",\"type\":\"identity\"},{\"endpoints\":[{\"id\":\"TEST_OP_NEUTRON_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost:9696/\"}],\"id\":\"TEST_OP_MAIN_NEUTRON_ID\",\"name\":\"neutron\",\"type\":\"network\"},{\"endpoints\":[{\"id\":\"TEST_OP_GLANCE_ID\",\"interface\":\"public\",\"region\":\"RegionOne\",\"region_id\":\"RegionOne\",\"url\":\"http://localhost/image\"}],\"id\":\"TEST_OP_MAIN_GLANCE_ID\",\"name\":\"glance\",\"type\":\"image\"}]}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
@@ -315,8 +306,7 @@ create_dummy_dbaas_response_sub()
 			# OpenStack Project information
 			#------------------------------------------------------
 			_UTIL_DBAAS_USER_ID=$(pecho -n "${_DUMMY_URL_PATH}" | grep '^/v3/users/[^/]*/projects' | sed 's#^/v3/users/\([^/]*\)/projects$#\1#g')
-			if [ "X${_UTIL_DBAAS_USER_ID}" != "XTEST_USER_ID" ]; then
-				# shellcheck disable=SC2034
+			if [ -z "${_UTIL_DBAAS_USER_ID}" ] || [ "${_UTIL_DBAAS_USER_ID}" != "TEST_USER_ID" ]; then
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Get User Project Information : Unknown user id(${_UTIL_DBAAS_USER_ID})."
 				return 2
@@ -325,17 +315,20 @@ create_dummy_dbaas_response_sub()
 			_UTIL_DBAAS_RESPONSE_CONTENT="{\"links\":{\"next\":null,\"previous\":null,\"self\":\"http://localhost/identity/v3/users/${_UTIL_DBAAS_USER_ID}/projects\"},\"projects\":[{\"description\":\"\",\"domain_id\":\"default\",\"enabled\":true,\"id\":\"TEST_TENANT_ID\",\"is_domain\":false,\"links\":{\"self\":\"http://localhost/identity/v3/projects/TEST_TENANT_ID\"},\"name\":\"test1\",\"options\":{},\"parent_id\":\"default\",\"tags\":[]}]}"
 			pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-			# shellcheck disable=SC2034
 			K2HR3CLI_REQUEST_EXIT_CODE=200
 			return 0
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/v2.0/security-groups" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/v2.0/security-groups" ]; then
 			#------------------------------------------------------
 			# OpenStack Security Group
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Security Group Information
+				#
+
+				# [NOTE]
+				# Since the condition becomes complicated, use "X"(temporary word).
 				#
 				if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 					#
@@ -350,11 +343,10 @@ create_dummy_dbaas_response_sub()
 				fi
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 
-			elif [ "X${_DUMMY_METHOD}" = "XPOST" ]; then
+			elif [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "POST" ]; then
 				#
 				# Create Security Group
 				#
@@ -363,7 +355,7 @@ create_dummy_dbaas_response_sub()
 				#
 				_UTIL_DBAAS_SECGRP_TYPE=$(pecho -n "${_DUMMY_BODY_STRING}" | grep '"name":[[:space:]]*".*",.*$' | sed -e 's/^.*"name":[[:space:]]*"\([^\"]*\)",.*$/\1/g' -e 's/^[^-]*-k2hdkc-\([^-]*\)-.*$/\1/g')
 
-				if [ "X${_UTIL_DBAAS_SECGRP_TYPE}" = "Xserver" ]; then
+				if [ -n "${_UTIL_DBAAS_SECGRP_TYPE}" ] && [ "${_UTIL_DBAAS_SECGRP_TYPE}" = "server" ]; then
 					_UTIL_DBAAS_RESPONSE_CONTENT="{\"security_groups\":[{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"security group for k2hdkc testcluster server node\",\"id\":\"TEST_SECGROUP_SERVER_ID\",\"name\":\"${_TEST_K2HDKC_CLUSTER_NAME}-k2hdkc-server-sec\",\"project_id\":\"TEST_TENANT_ID\",\"revision_number\":4,\"security_group_rules\":[{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"k2hdkc/chmpx server node control port\",\"direction\":\"ingress\",\"ethertype\":\"IPv4\",\"id\":\"TEST_SECRULE_SERVER_IPV4_2_ID\",\"port_range_max\":98021,\"port_range_min\":98021,\"project_id\":\"TEST_TENANT_ID\",\"protocol\":\"tcp\",\"remote_group_id\":null,\"remote_ip_prefix\":null,\"revision_number\":0,\"security_group_id\":\"TEST_SECGROUP_SERVER_ID\",\"tags\":[],\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"},{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"k2hdkc/chmpx server node port\",\"direction\":\"ingress\",\"ethertype\":\"IPv4\",\"id\":\"TEST_SECRULE_SERVER_IPV4_1_ID\",\"port_range_max\":98020,\"port_range_min\":98020,\"project_id\":\"TEST_TENANT_ID\",\"protocol\":\"tcp\",\"remote_group_id\":null,\"remote_ip_prefix\":null,\"revision_number\":0,\"security_group_id\":\"TEST_SECGROUP_SERVER_ID\",\"tags\":[],\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"}],\"stateful\":true,\"tags\":[],\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"}]}"
 				else
 					_UTIL_DBAAS_RESPONSE_CONTENT="{\"security_groups\":[{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"security group for k2hdkc testcluster slave node\",\"id\":\"TEST_SECGROUP_SLAVE_ID\",\"name\":\"${_TEST_K2HDKC_CLUSTER_NAME}-k2hdkc-slave-sec\",\"project_id\":\"TEST_TENANT_ID\",\"revision_number\":3,\"security_group_rules\":[{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"k2hdkc/chmpx slave node control port\",\"direction\":\"ingress\",\"ethertype\":\"IPv4\",\"id\":\"TEST_SECRULE_SLAVE_IPV4_1_ID\",\"port_range_max\":98031,\"port_range_min\":98031,\"project_id\":\"TEST_TENANT_ID\",\"protocol\":\"tcp\",\"remote_group_id\":null,\"remote_ip_prefix\":null,\"revision_number\":0,\"security_group_id\":\"TEST_SECGROUP_SLAVE_ID\",\"tags\":[],\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"}],\"stateful\":true,\"tags\":[],\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"}]}"
@@ -371,12 +363,10 @@ create_dummy_dbaas_response_sub()
 
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=201
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
@@ -386,29 +376,27 @@ create_dummy_dbaas_response_sub()
 			#------------------------------------------------------
 			# OpenStack Security Group
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XDELETE" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "DELETE" ]; then
 				#
 				# Delete Security Group
 				#
 				_UTIL_DBAAS_RESPONSE_CONTENT=""
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=204
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/v2.0/security-group-rules" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/v2.0/security-group-rules" ]; then
 			#------------------------------------------------------
 			# OpenStack Security Group Rule
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XPOST" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "POST" ]; then
 				#
 				# Create Security Group Rule
 				#
@@ -423,78 +411,70 @@ create_dummy_dbaas_response_sub()
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"security_group_rule\":{\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"description\":\"${_UTIL_DBAAS_SECGRP_DESC}\",\"direction\":\"ingress\",\"ethertype\":\"IPv4\",\"id\":\"TEST_TENANT_ID\",\"port_range_max\":${_UTIL_DBAAS_SECGRP_MAX},\"port_range_min\":${_UTIL_DBAAS_SECGRP_MIN},\"project_id\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"protocol\":\"tcp\",\"remote_group_id\":null,\"remote_ip_prefix\":null,\"revision_number\":0,\"security_group_id\":\"${_UTIL_DBAAS_SECGRP_ID}\",\"tenant_id\":\"TEST_TENANT_ID\",\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\"}}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=201
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/os-keypairs" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/os-keypairs" ]; then
 			#------------------------------------------------------
 			# OpenStack Keypair
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Get Keypair list
 				#
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"keypairs\":[{\"keypair\":{\"fingerprint\":\"00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\",\"name\":\"TEST_KEYPAIR\",\"public_key\":\"ssh-rsa test_keypair_public_key_contents testuser@localhost\"}}]}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/v2/images" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/v2/images" ]; then
 			#------------------------------------------------------
 			# OpenStack Glance
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Get Image list
 				#
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"first\":\"/v2/images\",\"images\":[{\"checksum\":\"TEST_IMAGE_CHECKSUM\",\"container_format\":\"bare\",\"created_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"disk_format\":\"qcow2\",\"file\":\"/v2/images/TEST_IMAGE_ID/file\",\"id\":\"TEST_IMAGE_ID\",\"min_disk\":0,\"min_ram\":0,\"name\":\"TEST_IMAGE\",\"os_hash_algo\":\"sha512\",\"os_hash_value\":\"TEST_OS_HASH_VALUE\",\"os_hidden\":false,\"owner\":\"TEST_USER_ID\",\"owner_specified.openstack.md5\":\"\",\"owner_specified.openstack.object\":\"images/TEST_IMAGE\",\"owner_specified.openstack.sha256\":\"\",\"protected\":false,\"schema\":\"/v2/schemas/image\",\"self\":\"/v2/images/TEST_IMAGE_ID\",\"size\":327680000,\"status\":\"active\",\"tags\":[],\"updated_at\":\"${_UTIL_DBAAS_ISSUED_AT_DATE}\",\"virtual_size\":null,\"visibility\":\"public\"}],\"schema\":\"/v2/schemas/images\"}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
-		elif [ "X${_DUMMY_URL_PATH}" = "X/flavors/detail" ]; then
+		elif [ "${_DUMMY_URL_PATH}" = "/flavors/detail" ]; then
 			#------------------------------------------------------
 			# OpenStack Flavor
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Get Flavor list
 				#
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"flavors\":[{\"OS-FLV-DISABLED:disabled\":false,\"OS-FLV-EXT-DATA:ephemeral\":0,\"disk\":10,\"id\":\"TEST_FLAVOR_ID\",\"links\":[{\"href\":\"http://localhost/compute/v2.1/TEST_TENANT_ID/flavors/TEST_FLAVOR_ID\",\"rel\":\"self\"},{\"href\":\"http://localhost/compute/TEST_TENANT_ID/flavors/TEST_FLAVOR_ID\",\"rel\":\"bookmark\"}],\"name\":\"TEST_FLAVOR\",\"os-flavor-access:is_public\":true,\"ram\":2048,\"rxtx_factor\":1.0,\"swap\":\"\",\"vcpus\":2}]}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
@@ -504,7 +484,7 @@ create_dummy_dbaas_response_sub()
 			#------------------------------------------------------
 			# OpenStack Create Servers (/servers)
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XPOST" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "POST" ]; then
 				#
 				# Create Servers
 				#
@@ -513,12 +493,10 @@ create_dummy_dbaas_response_sub()
 				_UTIL_DBAAS_RESPONSE_CONTENT="{\"server\":{\"id\":\"TESTSERVER_ID\",\"links\":[{\"rel\":\"self\",\"href\":\"http://localhost/compute/v2.1/${_UTIL_DBAAS_SERVER_TENANT_ID}/servers/TESTSERVER_ID\"},{\"rel\":\"bookmark\",\"href\":\"http://localhost/compute/${_UTIL_DBAAS_SERVER_TENANT_ID}/servers/TESTSERVER_ID\"}],\"OS-DCF:diskConfig\":\"MANUAL\",\"security_groups\":[{\"name\":\"default\"}],\"adminPass\":\"TEST_ADMIN_PASS\"}}"
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=202
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
@@ -528,26 +506,23 @@ create_dummy_dbaas_response_sub()
 			#------------------------------------------------------
 			# OpenStack Delete Server (/servers/<server id>)
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XDELETE" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "DELETE" ]; then
 				#
 				# Delete Server
 				#
 				_UTIL_DBAAS_RESPONSE_CONTENT=""
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=204
 				return 0
 
 			else
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=400
 				prn_err "Unknown URL(OpenStack URI: ${_DUMMY_METHOD}: ${_DUMMY_URL_PATH})."
 				return 2
 			fi
 
 		else
-			# shellcheck disable=SC2034
 			K2HR3CLI_REQUEST_EXIT_CODE=400
 			prn_err "Unknown URL(OpenStack URI: ${_DUMMY_URL_PATH})."
 			return 2
@@ -561,7 +536,7 @@ create_dummy_dbaas_response_sub()
 			#------------------------------------------------------
 			# K2HR3 Role API
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Set role information
 				#
@@ -585,7 +560,6 @@ create_dummy_dbaas_response_sub()
 				fi
 				pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-				# shellcheck disable=SC2034
 				K2HR3CLI_REQUEST_EXIT_CODE=200
 				return 0
 			fi
@@ -594,7 +568,7 @@ create_dummy_dbaas_response_sub()
 			#------------------------------------------------------
 			# K2HR3 Resource API
 			#------------------------------------------------------
-			if [ "X${_DUMMY_METHOD}" = "XGET" ]; then
+			if [ -n "${_DUMMY_METHOD}" ] && [ "${_DUMMY_METHOD}" = "GET" ]; then
 				#
 				# Set role information
 				#
@@ -606,7 +580,6 @@ create_dummy_dbaas_response_sub()
 					fi
 					pecho "${_UTIL_DBAAS_RESPONSE_CONTENT}" > "${K2HR3CLI_REQUEST_RESULT_FILE}"
 
-					# shellcheck disable=SC2034
 					K2HR3CLI_REQUEST_EXIT_CODE=200
 					return 0
 				fi

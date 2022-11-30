@@ -42,7 +42,7 @@
 #
 # Description
 #
-if [ "X${K2HR3CLI_PLUGIN_CONFIG_VAR_DESC}" != "X" ]; then
+if [ -n "${K2HR3CLI_PLUGIN_CONFIG_VAR_DESC}" ]; then
 	K2HR3CLI_PLUGIN_CONFIG_VAR_DESC="${K2HR3CLI_PLUGIN_CONFIG_VAR_DESC} config_var_desciption_dbaas"
 else
 	K2HR3CLI_PLUGIN_CONFIG_VAR_DESC="config_var_desciption_dbaas"
@@ -51,7 +51,7 @@ fi
 #
 # Names
 #
-if [ "X${K2HR3CLI_PLUGIN_CONFIG_VAR_NAME}" != "X" ]; then
+if [ -n "${K2HR3CLI_PLUGIN_CONFIG_VAR_NAME}" ]; then
 	K2HR3CLI_PLUGIN_CONFIG_VAR_NAME="${K2HR3CLI_PLUGIN_CONFIG_VAR_NAME} config_var_name_dbaas"
 else
 	K2HR3CLI_PLUGIN_CONFIG_VAR_NAME="config_var_name_dbaas"
@@ -60,7 +60,7 @@ fi
 #
 # Check DBaaS Variables
 #
-if [ "X${K2HR3CLI_PLUGIN_CONFIG_CHECK_VAR}" != "X" ]; then
+if [ -n "${K2HR3CLI_PLUGIN_CONFIG_CHECK_VAR}" ]; then
 	K2HR3CLI_PLUGIN_CONFIG_CHECK_VAR="${K2HR3CLI_PLUGIN_CONFIG_CHECK_VAR} config_check_var_name_dbaas"
 else
 	K2HR3CLI_PLUGIN_CONFIG_CHECK_VAR="config_check_var_name_dbaas"
@@ -129,138 +129,138 @@ config_var_desciption_dbaas()
 #
 config_var_name_dbaas()
 {
-	if [ "X$1" = "X" ]; then
-		if [ "X${K2HR3CLI_DBAAS_CONFIG}" != "X" ]; then
+	if [ -z "$1" ]; then
+		if [ -n "${K2HR3CLI_DBAAS_CONFIG}" ]; then
 			prn_msg "K2HR3CLI_DBAAS_CONFIG: \"${K2HR3CLI_DBAAS_CONFIG}\""
 		else
 			prn_msg "K2HR3CLI_DBAAS_CONFIG: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_USER}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_USER}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_USER: \"${K2HR3CLI_OPENSTACK_USER}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_USER: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_USER_ID}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_USER_ID}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_USER_ID: \"${K2HR3CLI_OPENSTACK_USER_ID}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_USER_ID: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_PASS}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_PASS}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_PASS: \"********(${#K2HR3CLI_OPENSTACK_PASS})\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_PASS: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_TENANT}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_TENANT}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT: \"${K2HR3CLI_OPENSTACK_TENANT}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_TENANT_ID}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_TENANT_ID}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT_ID: \"${K2HR3CLI_OPENSTACK_TENANT_ID}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT_ID: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_SCOPED_TOKEN: \"${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_SCOPED_TOKEN: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_IDENTITY_URI}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_IDENTITY_URI: \"${K2HR3CLI_OPENSTACK_IDENTITY_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_IDENTITY_URI: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_NOVA_URI}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_NOVA_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_NOVA_URI: \"${K2HR3CLI_OPENSTACK_NOVA_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_NOVA_URI: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_GLANCE_URI}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_GLANCE_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_GLANCE_URI: \"${K2HR3CLI_OPENSTACK_GLANCE_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_GLANCE_URI: (empty)"
 		fi
-		if [ "X${K2HR3CLI_OPENSTACK_NEUTRON_URI}" != "X" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_NEUTRON_URI: \"${K2HR3CLI_OPENSTACK_NEUTRON_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_NEUTRON_URI: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_DBAAS_CONFIG" ]; then
-		if [ "X${K2HR3CLI_DBAAS_CONFIG}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_DBAAS_CONFIG" ]; then
+		if [ -n "${K2HR3CLI_DBAAS_CONFIG}" ]; then
 			prn_msg "K2HR3CLI_DBAAS_CONFIG: \"${K2HR3CLI_DBAAS_CONFIG}\""
 		else
 			prn_msg "K2HR3CLI_DBAAS_CONFIG: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_USER" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_USER}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_USER" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_USER}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_USER: \"${K2HR3CLI_OPENSTACK_USER}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_USER: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_USER_ID" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_USER_ID}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_USER_ID" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_USER_ID}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_USER_ID: \"${K2HR3CLI_OPENSTACK_USER_ID}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_USER_ID: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_PASS" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_PASS}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_PASS" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_PASS}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_PASS: \"${K2HR3CLI_OPENSTACK_PASS}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_PASS: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_TENANT" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_TENANT}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_TENANT" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_TENANT}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT: \"${K2HR3CLI_OPENSTACK_TENANT}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_TENANT_ID" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_TENANT_ID}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_TENANT_ID" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_TENANT_ID}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT_ID: \"${K2HR3CLI_OPENSTACK_TENANT_ID}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_TENANT_ID: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_SCOPED_TOKEN" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_SCOPED_TOKEN" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_SCOPED_TOKEN: \"${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_SCOPED_TOKEN: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_IDENTITY_URI" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_IDENTITY_URI}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_IDENTITY_URI" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_IDENTITY_URI: \"${K2HR3CLI_OPENSTACK_IDENTITY_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_IDENTITY_URI: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_NOVA_URI" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_NOVA_URI}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_NOVA_URI" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_NOVA_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_NOVA_URI: \"${K2HR3CLI_OPENSTACK_NOVA_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_NOVA_URI: (empty)"
 		fi
 		return 0
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_GLANCE_URI" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_GLANCE_URI}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_GLANCE_URI" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_GLANCE_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_GLANCE_URI: \"${K2HR3CLI_OPENSTACK_GLANCE_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_GLANCE_URI: (empty)"
@@ -268,8 +268,8 @@ config_var_name_dbaas()
 		return 0
 
 
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_NEUTRON_URI" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_NEUTRON_URI}" != "X" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_NEUTRON_URI" ]; then
+		if [ -n "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" ]; then
 			prn_msg "K2HR3CLI_OPENSTACK_NEUTRON_URI: \"${K2HR3CLI_OPENSTACK_NEUTRON_URI}\""
 		else
 			prn_msg "K2HR3CLI_OPENSTACK_NEUTRON_URI: (empty)"
@@ -287,27 +287,29 @@ config_var_name_dbaas()
 #
 config_check_var_name_dbaas()
 {
-	if [ "X$1" = "XK2HR3CLI_DBAAS_CONFIG" ]; then
+	if [ -z "$1" ]; then
+		return 1
+	elif [ "$1" = "K2HR3CLI_DBAAS_CONFIG" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_USER" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_USER" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_USER_ID" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_USER_ID" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_PASS" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_PASS" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_TENANT" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_TENANT" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_TENANT_ID" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_TENANT_ID" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_SCOPED_TOKEN" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_SCOPED_TOKEN" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_IDENTITY_URI" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_IDENTITY_URI" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_NOVA_URI" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_NOVA_URI" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_GLANCE_URI" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_GLANCE_URI" ]; then
 		return 0
-	elif [ "X$1" = "XK2HR3CLI_OPENSTACK_NEUTRON_URI" ]; then
+	elif [ "$1" = "K2HR3CLI_OPENSTACK_NEUTRON_URI" ]; then
 		return 0
 	fi
 	return 1

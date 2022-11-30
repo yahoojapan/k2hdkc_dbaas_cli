@@ -46,7 +46,7 @@ dbaas_get_resource_filepath()
 {
 	_DATABASE_CONFIG_FILE=""
 
-	if [ "X${K2HR3CLI_DBAAS_CONFIG}" != "X" ]; then
+	if [ -n "${K2HR3CLI_DBAAS_CONFIG}" ]; then
 		#
 		# Specified custom dbaas configuration directory
 		#
@@ -72,7 +72,7 @@ dbaas_get_resource_filepath()
 			fi
 		fi
 
-		if [ "X${_DATABASE_CONFIG_FILE}" = "X" ]; then
+		if [ -z "${_DATABASE_CONFIG_FILE}" ]; then
 			#
 			# Default dbaas configuration
 			#
@@ -109,7 +109,7 @@ dbaas_load_resource_keys()
 {
 	_DATABASE_KEYS_FILE=""
 
-	if [ "X${K2HR3CLI_DBAAS_CONFIG}" != "X" ]; then
+	if [ -n "${K2HR3CLI_DBAAS_CONFIG}" ]; then
 		#
 		# Specified custom dbaas configuration directory
 		#
@@ -135,7 +135,7 @@ dbaas_load_resource_keys()
 			fi
 		fi
 
-		if [ "X${_DATABASE_KEYS_FILE}" = "X" ]; then
+		if [ -z "${_DATABASE_KEYS_FILE}" ]; then
 			#
 			# Default dbaas configuration
 			#
@@ -154,7 +154,7 @@ dbaas_load_resource_keys()
 	#
 	# Load values
 	#
-	if [ "X${_DATABASE_KEYS_FILE}" != "X" ]; then
+	if [ -n "${_DATABASE_KEYS_FILE}" ]; then
 		. "${_DATABASE_KEYS_FILE}"
 	else
 		#
@@ -189,16 +189,16 @@ dbaas_load_resource_keys()
 #
 dbaas_get_current_tenant()
 {
-	if [ "X${K2HR3CLI_SCOPED_TOKEN}" = "X" ]; then
+	if [ -z "${K2HR3CLI_SCOPED_TOKEN}" ]; then
 		return 1
 	fi
 
 	#
 	# Run k2hr3 for token show
 	#
-	_DATABASE_TOKEN_INFO=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" token show token --scopedtoken "${K2HR3CLI_SCOPED_TOKEN}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_TOKEN_INFO=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" token show token --scopedtoken "${K2HR3CLI_SCOPED_TOKEN}"); then
+
 		prn_err "Failed to get scoped token information."
 		return 1
 	fi
@@ -206,8 +206,7 @@ dbaas_get_current_tenant()
 	#
 	# Parse Result
 	#
-	jsonparser_parse_json_string "${_DATABASE_TOKEN_INFO}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_TOKEN_INFO}"; then
 		prn_err "Failed to parse scoped token information."
 		return 1
 	fi
@@ -215,18 +214,17 @@ dbaas_get_current_tenant()
 	#
 	# Top element
 	#
-	jsonparser_get_key_value '%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%' "${JP_PAERSED_FILE}"; then
 		prn_err "Failed to parse scoped token information."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_ARR}" ]; then
+	if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_ARR}" ]; then
 		prn_err "Scoped token information is not array."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_VAL}" = "X" ]; then
+	if [ -z "${JSONPARSER_FIND_VAL}" ]; then
 		prn_err "Scoped token information is empty array."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -237,18 +235,18 @@ dbaas_get_current_tenant()
 	#
 	_DATABASE_TOKEN_INFO_POS=$(pecho -n "${JSONPARSER_FIND_KEY_VAL}" | awk '{print $1}')
 	_DATABASE_TOKEN_INFO_POS_RAW=$(pecho -n "${_DATABASE_TOKEN_INFO_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-	jsonparser_get_key_value "%${_DATABASE_TOKEN_INFO_POS_RAW}%\"name\"%" "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+
+	if ! jsonparser_get_key_value "%${_DATABASE_TOKEN_INFO_POS_RAW}%\"name\"%" "${JP_PAERSED_FILE}"; then
 		prn_err "Failed to parse scoped token information(element does not have \"name\")."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_STR}" ]; then
+	if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_STR}" ]; then
 		prn_err "Failed to parse scoped token information(\"name\" is not string)."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_STR_VAL}" = "X" ]; then
+	if [ -z "${JSONPARSER_FIND_STR_VAL}" ]; then
 		prn_err "Failed to parse scoped token information(\"name\" value is empty)."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -286,13 +284,12 @@ dbaas_get_existed_role_token()
 	# [MEMO]
 	#	["49963578ddfe93dfa214e509426eb59f2fddfb4778bd47972d3fad2fe9c3a434","fdc09c83575df90e103d70ee9acb64d2085c96e425d296342dc7029b4abd091c"]
 	#
-	_DATABASE_GET_RTOKEN_ARR_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role token show "${_DATABASE_GET_RTOKEN_ROLE}")
+	if ! _DATABASE_GET_RTOKEN_ARR_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role token show "${_DATABASE_GET_RTOKEN_ROLE}"); then
 
-	#
-	# Check Result
-	#
-	if [ $? -ne 0 ]; then
+		#
+		# Check Result(failure)
+		#
 		prn_dbg "(dbaas_get_existed_role_token) Role token for ${_DATABASE_GET_RTOKEN_ROLE} is not existed or failed to get those."
 		return 1
 	fi
@@ -300,23 +297,21 @@ dbaas_get_existed_role_token()
 	#
 	# Parse Result
 	#
-	jsonparser_parse_json_string "${_DATABASE_GET_RTOKEN_ARR_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_GET_RTOKEN_ARR_RESULT}"; then
 		prn_dbg "(dbaas_get_existed_role_token) Failed to parse Role token for ${_DATABASE_GET_RTOKEN_ROLE}."
 		return 1
 	fi
-	jsonparser_get_key_value '%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%' "${JP_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_get_existed_role_token) Failed to parse Role token for ${_DATABASE_GET_RTOKEN_ROLE}."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_ARR}" ]; then
+	if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_ARR}" ]; then
 		prn_dbg "(dbaas_get_existed_role_token) Role token for ${_DATABASE_GET_RTOKEN_ROLE} is not array."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
-	if [ "X${JSONPARSER_FIND_VAL}" = "X" ]; then
+	if [ -z "${JSONPARSER_FIND_VAL}" ]; then
 		prn_dbg "(dbaas_get_existed_role_token) Role token for ${_DATABASE_GET_RTOKEN_ROLE} is empty."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -342,13 +337,12 @@ dbaas_get_existed_role_token()
 	#	    {...}
 	#	}
 	#
-	_DATABASE_GET_RTOKEN_OBJ_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role token show "${_DATABASE_GET_RTOKEN_ROLE}" --expand)
+	if ! _DATABASE_GET_RTOKEN_OBJ_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role token show "${_DATABASE_GET_RTOKEN_ROLE}" --expand); then
 
-	#
-	# Check Result
-	#
-	if [ $? -ne 0 ]; then
+		#
+		# Check Result(failure)
+		#
 		prn_dbg "(dbaas_get_existed_role_token) Role token for ${_DATABASE_GET_RTOKEN_ROLE} is not existed or failed to get those."
 		rm -f "${_DATABASE_GET_RTOKEN_LIST_FILE}"
 		return 1
@@ -357,8 +351,7 @@ dbaas_get_existed_role_token()
 	#
 	# Parse Result
 	#
-	jsonparser_parse_json_string "${_DATABASE_GET_RTOKEN_OBJ_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_GET_RTOKEN_OBJ_RESULT}"; then
 		prn_dbg "(dbaas_get_existed_role_token) Failed to parse Role token detail for ${_DATABASE_GET_RTOKEN_ROLE}."
 		return 1
 	fi
@@ -375,18 +368,17 @@ dbaas_get_existed_role_token()
 		# Get token string from array
 		#
 		_DATABASE_GET_RTOKEN_POS_RAW=$(pecho -n "${_DATABASE_GET_RTOKEN_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_POS_RAW}%" "${_DATABASE_GET_RTOKEN_LIST_FILE}"
-		if [ $? -ne 0 ]; then
+		if ! jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_POS_RAW}%" "${_DATABASE_GET_RTOKEN_LIST_FILE}"; then
 			prn_err "Failed to parse scoped token information at \"%${_DATABASE_GET_RTOKEN_POS_RAW}%\"."
 			rm -f "${_DATABASE_GET_RTOKEN_OBJ_FILE}"
 			rm -f "${_DATABASE_GET_RTOKEN_LIST_FILE}"
 			return 1
 		fi
-		if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_STR}" ]; then
+		if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_STR}" ]; then
 			prn_err "Failed to parse scoped token information at \"%${_DATABASE_GET_RTOKEN_POS_RAW}%\" is not string."
 			continue
 		fi
-		if [ "X${JSONPARSER_FIND_VAL}" = "X" ]; then
+		if [ -z "${JSONPARSER_FIND_VAL}" ]; then
 			prn_err "Failed to parse scoped token information at \"%${_DATABASE_TOKEN_INFO_POS}%\" is empty string."
 			continue
 		fi
@@ -396,12 +388,11 @@ dbaas_get_existed_role_token()
 		#
 		# Search token in object(registerpath)
 		#
-		jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_KEY}%\"registerpath\"%" "${JP_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+		if ! jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_KEY}%\"registerpath\"%" "${JP_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_get_existed_role_token) ${_DATABASE_GET_RTOKEN_TOKENSTR} role token does not have registerpath key."
 			continue
 		fi
-		if [ "X${JSONPARSER_FIND_STR_VAL}" = "X" ]; then
+		if [ -z "${JSONPARSER_FIND_STR_VAL}" ]; then
 			prn_dbg "(dbaas_get_existed_role_token) ${_DATABASE_GET_RTOKEN_TOKENSTR} role token registerpath is empty."
 			continue
 		fi
@@ -410,12 +401,11 @@ dbaas_get_existed_role_token()
 		#
 		# Search token in object(expire)
 		#
-		jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_KEY}%\"expire\"%" "${JP_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+		if ! jsonparser_get_key_value "%${_DATABASE_GET_RTOKEN_KEY}%\"expire\"%" "${JP_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_get_existed_role_token) ${_DATABASE_GET_RTOKEN_TOKENSTR} role token does not have expire key."
 			continue
 		fi
-		if [ "X${JSONPARSER_FIND_STR_VAL}" = "X" ]; then
+		if [ -z "${JSONPARSER_FIND_STR_VAL}" ]; then
 			prn_dbg "(dbaas_get_existed_role_token) ${_DATABASE_GET_RTOKEN_TOKENSTR} role token expire is empty."
 			continue
 		fi
@@ -443,7 +433,7 @@ dbaas_get_existed_role_token()
 	rm -f "${_DATABASE_GET_RTOKEN_OBJ_FILE}"
 	rm -f "${_DATABASE_GET_RTOKEN_LIST_FILE}"
 
-	if [ "X${_DATABASE_GET_RTOKEN_MAX_TOKEN}" = "X" ] || [ "X${_DATABASE_GET_RTOKEN_MAX_REGPATH}" = "X" ]; then
+	if [ -z "${_DATABASE_GET_RTOKEN_MAX_TOKEN}" ] || [ -z "${_DATABASE_GET_RTOKEN_MAX_REGPATH}" ]; then
 		prn_dbg "(dbaas_get_existed_role_token) Not found existed Role token."
 		return 1
 	fi
@@ -480,17 +470,16 @@ dbaas_create_role_token()
 	#	Succeed :	ROLE TOKEN=......
 	#				REGISTERPATH=......
 	#
-	_DATABASE_CREATE_RTOKEN_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role token create "${_DATABASE_CREATE_RTOKEN_ROLE}" --expire "0")
+	if ! _DATABASE_CREATE_RTOKEN_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role token create "${_DATABASE_CREATE_RTOKEN_ROLE}" --expire "0"); then
 
-	#
-	# Check Result
-	#
-	if [ $? -ne 0 ]; then
+		#
+		# Check Result(failure)
+		#
 		prn_dbg "(dbaas_create_role_token) Failed to create new Role token for ${_DATABASE_GET_RTOKEN_ROLE}."
 		return 1
 	fi
-	if [ "X${_DATABASE_CREATE_RTOKEN_RESULT}" = "X" ]; then
+	if [ -z "${_DATABASE_CREATE_RTOKEN_RESULT}" ]; then
 		prn_dbg "(dbaas_create_role_token) Failed to create new Role token for ${_DATABASE_GET_RTOKEN_ROLE}(result is empty)"
 		return 1
 	fi
@@ -498,22 +487,19 @@ dbaas_create_role_token()
 	#
 	# Parse Result
 	#
-	jsonparser_parse_json_string "${_DATABASE_CREATE_RTOKEN_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_CREATE_RTOKEN_RESULT}"; then
 		prn_dbg "(dbaas_create_role_token) Failed to parse new Role token for ${_DATABASE_GET_RTOKEN_ROLE}"
 		return 1
 	fi
 
-	jsonparser_get_key_value '%"token"%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"token"%' "${JP_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_create_role_token) Failed to create new Role token for ${_DATABASE_GET_RTOKEN_ROLE}(result token is wrong format)"
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
 	fi
 	_DATABASE_CREATE_RTOKEN=${JSONPARSER_FIND_STR_VAL}
 
-	jsonparser_get_key_value '%"registerpath"%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"registerpath"%' "${JP_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_create_role_token) Failed to create new Role token for ${_DATABASE_GET_RTOKEN_ROLE}(result registerpath is wrong format)"
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -522,7 +508,7 @@ dbaas_create_role_token()
 
 	rm -f "${JP_PAERSED_FILE}"
 
-	if [ "X${_DATABASE_CREATE_RTOKEN}" = "X" ] || [ "X${_DATABASE_CREATE_REGPATH}" = "X" ]; then
+	if [ -z "${_DATABASE_CREATE_RTOKEN}" ] || [ -z "${_DATABASE_CREATE_REGPATH}" ]; then
 		prn_dbg "(dbaas_create_role_token) Failed to create new Role token for ${_DATABASE_GET_RTOKEN_ROLE}(result is something wrong)"
 		return 1
 	fi
@@ -556,7 +542,7 @@ dbaas_get_openstack_launch_post_data()
 		pecho -n ""
 		return 1
 	fi
-	if [ "X$1" = "X" ] || [ "X$2" = "X" ] || [ "X$3" = "X" ] || [ "X$4" = "X" ]; then
+	if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
 		prn_dbg "(dbaas_get_openstack_launch_post_data) Parameters($1, $2, $3, $4) wrong."
 		pecho -n ""
 		return 1
@@ -565,17 +551,17 @@ dbaas_get_openstack_launch_post_data()
 	_DBAAS_LAUNCH_DATA_IMAGE_ID=$2
 	_DBAAS_LAUNCH_DATA_FLAVOR_ID=$3
 	_DBAAS_LAUNCH_DATA_USERDATA=$4
-	if [ "X$5" = "X" ]; then
+	if [ -z "$5" ]; then
 		_DBAAS_LAUNCH_DATA_KEYPAIR=""
 	else
 		_DBAAS_LAUNCH_DATA_KEYPAIR=$5
 	fi
-	if [ "X$6" = "X" ]; then
+	if [ -z "$6" ]; then
 		_DBAAS_LAUNCH_DATA_SECGRP=""
 	else
 		_DBAAS_LAUNCH_DATA_SECGRP=$6
 	fi
-	if [ "X$7" = "X" ]; then
+	if [ -z "$7" ]; then
 		_DBAAS_LAUNCH_DATA_BLOCKDEVICE=""
 	else
 		_DBAAS_LAUNCH_DATA_BLOCKDEVICE=$7
@@ -585,7 +571,7 @@ dbaas_get_openstack_launch_post_data()
 	# Check template file
 	#
 	_DATABASE_CREATE_HOST_FILE=""
-	if [ "X${K2HR3CLI_DBAAS_CONFIG}" != "X" ]; then
+	if [ -n "${K2HR3CLI_DBAAS_CONFIG}" ]; then
 		#
 		# Specified custom dbaas configuration directory
 		#
@@ -613,7 +599,7 @@ dbaas_get_openstack_launch_post_data()
 			fi
 		fi
 
-		if [ "X${_DATABASE_CREATE_HOST_FILE}" = "X" ]; then
+		if [ -z "${_DATABASE_CREATE_HOST_FILE}" ]; then
 			#
 			# Default dbaas configuration
 			#
@@ -632,8 +618,7 @@ dbaas_get_openstack_launch_post_data()
 	#
 	# Load template file to string
 	#
-	_DATABASE_CREATE_HOST_DATA=$(sed -e 's/#.*$//g' -e 's/^[[:space:]]\+//g' -e 's/[[:space:]]\+$//g' "${_DATABASE_CREATE_HOST_FILE}" | tr -d '\n')
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_CREATE_HOST_DATA=$(sed -e 's/#.*$//g' -e 's/^[[:space:]]\+//g' -e 's/[[:space:]]\+$//g' "${_DATABASE_CREATE_HOST_FILE}" | tr -d '\n'); then
 		prn_err "Could load the template file for launching host."
 		pecho -n ""
 		return 1
@@ -642,7 +627,7 @@ dbaas_get_openstack_launch_post_data()
 	#
 	# Replace keyword
 	#
-	if [ "X${_DBAAS_LAUNCH_DATA_SECGRP}" != "X" ]; then
+	if [ -n "${_DBAAS_LAUNCH_DATA_SECGRP}" ]; then
 		#
 		# Set Security Group
 		#	"security_groups": [
@@ -656,14 +641,14 @@ dbaas_get_openstack_launch_post_data()
 		#
 		_DBAAS_LAUNCH_DATA_SECGRP="\"security_groups\":[{\"name\":\"default\"},{\"name\":\"${_DBAAS_LAUNCH_DATA_SECGRP}\"}],"
 	fi
-	if [ "X${_DBAAS_LAUNCH_DATA_KEYPAIR}" != "X" ]; then
+	if [ -n "${_DBAAS_LAUNCH_DATA_KEYPAIR}" ]; then
 		#
 		# Set Keypair
 		#	"key_name":"<...name...>",
 		#
 		_DBAAS_LAUNCH_DATA_KEYPAIR="\"key_name\":\"${_DBAAS_LAUNCH_DATA_KEYPAIR}\","
 	fi
-	if [ "X${_DBAAS_LAUNCH_DATA_BLOCKDEVICE}" != "X" ]; then
+	if [ -n "${_DBAAS_LAUNCH_DATA_BLOCKDEVICE}" ]; then
 		#
 		# Set Block Device Mapping(v2)
 		#	"block_device_mapping_v2":[{
@@ -687,7 +672,7 @@ dbaas_get_openstack_launch_post_data()
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_FLAVOR_ID__|${_DBAAS_LAUNCH_DATA_FLAVOR_ID}|" \
 			-e "s|__K2HDKC_DBAAS_LAUNCH_VM_TEMPLATE_USER_DATA__|${_DBAAS_LAUNCH_DATA_USERDATA}|")
 
-	if [ "X${_DATABASE_CREATE_HOST_DATA}" = "X" ]; then
+	if [ -z "${_DATABASE_CREATE_HOST_DATA}" ]; then
 		prn_err "Could load the template file for launching host."
 		pecho -n ""
 		return 1
@@ -732,13 +717,13 @@ dbaas_parse_k2hr3_host_info()
 	# 2'nd part
 	#
 	_DATABASE_PARSE_K2HR3_CHAR=$(pecho -n "${_DATABASE_PARSE_K2HR3_REMAINING}" | cut -b 1)
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" = "X" ];then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ];then
 		#
 		# No more data
 		#
 		return 0
 	fi
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" != "X " ]; then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ] || [ "${_DATABASE_PARSE_K2HR3_CHAR}" != " " ]; then
 		#
 		# 2'nd part is existed
 		#
@@ -750,7 +735,7 @@ dbaas_parse_k2hr3_host_info()
 		_DATABASE_TMP_NEXT_POS=$((${#DATABASE_PARSE_K2HR3_PORT} + 2))
 		_DATABASE_PARSE_K2HR3_REMAINING=$(pecho -n "${_DATABASE_PARSE_K2HR3_REMAINING}" | cut -c "${_DATABASE_TMP_NEXT_POS}"-)
 
-		if [ "X${DATABASE_PARSE_K2HR3_PORT}" = "X" ] || [ "X${DATABASE_PARSE_K2HR3_PORT}" = "X*" ]; then
+		if [ -z "${DATABASE_PARSE_K2HR3_PORT}" ] || [ "${DATABASE_PARSE_K2HR3_PORT}" = "*" ]; then
 			DATABASE_PARSE_K2HR3_PORT=0
 		fi
 	else
@@ -761,13 +746,13 @@ dbaas_parse_k2hr3_host_info()
 	# 3'rd part
 	#
 	_DATABASE_PARSE_K2HR3_CHAR=$(pecho -n "${_DATABASE_PARSE_K2HR3_REMAINING}" | cut -b 1)
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" = "X" ];then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ];then
 		#
 		# No more data
 		#
 		return 0
 	fi
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" != "X " ]; then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ] || [ "${_DATABASE_PARSE_K2HR3_CHAR}" != " " ]; then
 		#
 		# 3'rd part is existed
 		#
@@ -786,13 +771,13 @@ dbaas_parse_k2hr3_host_info()
 	# 4'th part
 	#
 	_DATABASE_PARSE_K2HR3_CHAR=$(pecho -n "${_DATABASE_PARSE_K2HR3_REMAINING}" | cut -b 1)
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" = "X" ];then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ];then
 		#
 		# No more data
 		#
 		return 0
 	fi
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" != "X " ]; then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ] || [ "${_DATABASE_PARSE_K2HR3_CHAR}" != " " ]; then
 		#
 		# 4'th part is existed
 		#
@@ -811,13 +796,13 @@ dbaas_parse_k2hr3_host_info()
 	# Last part
 	#
 	_DATABASE_PARSE_K2HR3_CHAR=$(pecho -n "${_DATABASE_PARSE_K2HR3_REMAINING}" | cut -b 1)
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" = "X" ];then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ];then
 		#
 		# No more data
 		#
 		return 0
 	fi
-	if [ "X${_DATABASE_PARSE_K2HR3_CHAR}" != "X " ]; then
+	if [ -z "${_DATABASE_PARSE_K2HR3_CHAR}" ] || [ "${_DATABASE_PARSE_K2HR3_CHAR}" != " " ]; then
 		#
 		# Last part is existed
 		#
@@ -848,14 +833,11 @@ dbaas_parse_k2hr3_host_info()
 #
 dbaas_find_role_host()
 {
-	# shellcheck disable=SC2034
 	DBAAS_FIND_ROLE_HOST_NAME=""
-	# shellcheck disable=SC2034
 	DBAAS_FIND_ROLE_HOST_PORT=0
-	# shellcheck disable=SC2034
 	DBAAS_FIND_ROLE_HOST_CUK=""
 
-	if [ "X$1" = "X" ] || [  "X$2" = "X" ]; then
+	if [ -z "$1" ] || [ -z "$2" ]; then
 		prn_dbg "(dbaas_find_role_host) Parameter is wrong."
 		return 1
 	fi
@@ -885,8 +867,7 @@ dbaas_find_role_host()
 	#
 	# Parse
 	#
-	jsonparser_parse_json_string "${_DATABASE_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_RESULT}"; then
 		prn_dbg "(dbaas_find_role_host) Failed to parse host list."
 		return 1
 	fi
@@ -894,8 +875,7 @@ dbaas_find_role_host()
 	#
 	# Search in hosts->hostnames
 	#
-	jsonparser_get_key_value '%"hosts"%"hostnames"%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"hostnames"%' "${JP_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_find_role_host) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames, thus skip this role."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -907,22 +887,29 @@ dbaas_find_role_host()
 	#
 	for _DATABASE_RESULT_HOSTNAME_POS in ${_DATABASE_RESULT_HOSTNAME_LIST}; do
 		_DATABASE_RESULT_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_RESULT_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${JP_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${JP_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_find_role_host) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames[${_DATABASE_RESULT_HOSTNAME_POS_RAW}], thus skip this role."
 			continue
 		fi
 
 		dbaas_parse_k2hr3_host_info "${JSONPARSER_FIND_STR_VAL}"
-		if [ "X${DATABASE_PARSE_K2HR3_HOSTNAME}" = "X$2" ] || [ "X${DATABASE_PARSE_K2HR3_TAG}" = "X$2" ]; then
+
+		if [ -n "${DATABASE_PARSE_K2HR3_HOSTNAME}" ] && [ "${DATABASE_PARSE_K2HR3_HOSTNAME}" = "$2" ]; then
 			#
 			# Found (The TAG may have a hostname and the HOSTNAME may be an IP address)
 			#
-			# shellcheck disable=SC2034
 			DBAAS_FIND_ROLE_HOST_NAME=${DATABASE_PARSE_K2HR3_HOSTNAME}
-			# shellcheck disable=SC2034
 			DBAAS_FIND_ROLE_HOST_PORT=${DATABASE_PARSE_K2HR3_PORT}
-			# shellcheck disable=SC2034
+			DBAAS_FIND_ROLE_HOST_CUK=${DATABASE_PARSE_K2HR3_CUK}
+			return 0
+
+		elif [ -n "${DATABASE_PARSE_K2HR3_TAG}" ] && [ "${DATABASE_PARSE_K2HR3_TAG}" = "$2" ]; then
+			#
+			# Found (The TAG may have a hostname and the HOSTNAME may be an IP address)
+			#
+			DBAAS_FIND_ROLE_HOST_NAME=${DATABASE_PARSE_K2HR3_HOSTNAME}
+			DBAAS_FIND_ROLE_HOST_PORT=${DATABASE_PARSE_K2HR3_PORT}
 			DBAAS_FIND_ROLE_HOST_CUK=${DATABASE_PARSE_K2HR3_CUK}
 			return 0
 		fi
@@ -931,8 +918,7 @@ dbaas_find_role_host()
 	#
 	# Search in hosts->ips
 	#
-	jsonparser_get_key_value '%"hosts"%"ips"%' "${JP_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"ips"%' "${JP_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_find_role_host) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips, thus skip this role."
 		rm -f "${JP_PAERSED_FILE}"
 		return 1
@@ -944,22 +930,29 @@ dbaas_find_role_host()
 	#
 	for _DATABASE_RESULT_IP_POS in ${_DATABASE_RESULT_IP_LIST}; do
 		_DATABASE_RESULT_IP_POS_RAW=$(pecho -n "${_DATABASE_RESULT_IP_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_IP_POS_RAW}%" "${JP_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_IP_POS_RAW}%" "${JP_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_find_role_host) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips[${_DATABASE_RESULT_IP_POS_RAW}], thus skip this role."
 			continue
 		fi
 
 		dbaas_parse_k2hr3_host_info "${JSONPARSER_FIND_STR_VAL}"
-		if [ "X${DATABASE_PARSE_K2HR3_HOSTNAME}" = "X$2" ] || [ "X${DATABASE_PARSE_K2HR3_TAG}" = "X$2" ]; then
+
+		if [ -n "${DATABASE_PARSE_K2HR3_HOSTNAME}" ] && [ "${DATABASE_PARSE_K2HR3_HOSTNAME}" = "$2" ]; then
 			#
 			# Found (The TAG may have a hostname and the HOSTNAME may be an IP address)
 			#
-			# shellcheck disable=SC2034
 			DBAAS_FIND_ROLE_HOST_NAME=${DATABASE_PARSE_K2HR3_HOSTNAME}
-			# shellcheck disable=SC2034
 			DBAAS_FIND_ROLE_HOST_PORT=${DATABASE_PARSE_K2HR3_PORT}
-			# shellcheck disable=SC2034
+			DBAAS_FIND_ROLE_HOST_CUK=${DATABASE_PARSE_K2HR3_CUK}
+			return 0
+
+		elif [ -n "${DATABASE_PARSE_K2HR3_TAG}" ] && [ "${DATABASE_PARSE_K2HR3_TAG}" = "$2" ]; then
+			#
+			# Found (The TAG may have a hostname and the HOSTNAME may be an IP address)
+			#
+			DBAAS_FIND_ROLE_HOST_NAME=${DATABASE_PARSE_K2HR3_HOSTNAME}
+			DBAAS_FIND_ROLE_HOST_PORT=${DATABASE_PARSE_K2HR3_PORT}
 			DBAAS_FIND_ROLE_HOST_CUK=${DATABASE_PARSE_K2HR3_CUK}
 			return 0
 		fi
@@ -981,7 +974,7 @@ dbaas_find_role_host()
 #
 dbaas_show_all_hosts()
 {
-	if [ "X$1" = "X" ]; then
+	if [ -z "$1" ]; then
 		return 1
 	fi
 	if [ ! -f "$1" ]; then
@@ -994,22 +987,21 @@ dbaas_show_all_hosts()
 	#
 	# "hostnames" key
 	#
-	jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOST_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOST_PAERSED_FILE}"; then
 		prn_warn "(dbaas_show_all_hosts) The result \"hosts\" key does not have \"hostnames\" element."
 	else
-		if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_ARR}" ]; then
+		if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_ARR}" ]; then
 			prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"hostnames\" key is not array."
 		else
 			_DATABASE_HOST_HOSTNAMES=${JSONPARSER_FIND_KEY_VAL}
 			for _DATABASE_HOST_HOSTNAME_POS in ${_DATABASE_HOST_HOSTNAMES}; do
 				_DATABASE_HOST_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_HOST_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-				jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_HOST_HOSTNAME_POS_RAW}%" "${_DATABASE_HOST_PAERSED_FILE}"
-				if [ $? -ne 0 ]; then
+
+				if ! jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_HOST_HOSTNAME_POS_RAW}%" "${_DATABASE_HOST_PAERSED_FILE}"; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"hostnames[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is not found."
 					continue
 				fi
-				if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_STR}" ]; then
+				if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_STR}" ]; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"hostnames[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is not string type."
 					continue
 				fi
@@ -1017,7 +1009,7 @@ dbaas_show_all_hosts()
 				# Parse host information
 				#
 				dbaas_parse_k2hr3_host_info "${JSONPARSER_FIND_STR_VAL}"
-				if [ "X${DATABASE_PARSE_K2HR3_HOSTNAME}" = "X" ]; then
+				if [ -z "${DATABASE_PARSE_K2HR3_HOSTNAME}" ]; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"hostnames[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is something wrong."
 					continue
 				fi
@@ -1036,22 +1028,21 @@ dbaas_show_all_hosts()
 	#
 	# "ips" key
 	#
-	jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOST_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOST_PAERSED_FILE}"; then
 		prn_warn "(dbaas_show_all_hosts) The result \"hosts\" key does not have \"ips\" element."
 	else
-		if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_ARR}" ]; then
+		if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_ARR}" ]; then
 			prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"ips\" key is not array."
 		else
 			_DATABASE_HOST_IPS=${JSONPARSER_FIND_KEY_VAL}
 			for _DATABASE_HOST_IPS_POS in ${_DATABASE_HOST_IPS}; do
 				_DATABASE_HOST_IPS_POS_RAW=$(pecho -n "${_DATABASE_HOST_IPS_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-				jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_HOST_IPS_POS_RAW}%" "${_DATABASE_HOST_PAERSED_FILE}"
-				if [ $? -ne 0 ]; then
+
+				if ! jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_HOST_IPS_POS_RAW}%" "${_DATABASE_HOST_PAERSED_FILE}"; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"ips[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is not found."
 					continue
 				fi
-				if [ "X${JSONPARSER_FIND_VAL_TYPE}" != "X${JP_TYPE_STR}" ]; then
+				if [ -z "${JSONPARSER_FIND_VAL_TYPE}" ] || [ "${JSONPARSER_FIND_VAL_TYPE}" != "${JP_TYPE_STR}" ]; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"ips[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is not string type."
 					continue
 				fi
@@ -1059,7 +1050,7 @@ dbaas_show_all_hosts()
 				# Parse host information
 				#
 				dbaas_parse_k2hr3_host_info "${JSONPARSER_FIND_STR_VAL}"
-				if [ "X${DATABASE_PARSE_K2HR3_HOSTNAME}" = "X" ]; then
+				if [ -z "${DATABASE_PARSE_K2HR3_HOSTNAME}" ]; then
 					prn_warn "(dbaas_show_all_hosts) The result \"hosts\"->\"hostnames[${_DATABASE_HOST_HOSTNAME_POS_RAW}]\" is something wrong."
 					continue
 				fi
@@ -1089,20 +1080,20 @@ dbaas_show_all_hosts()
 #
 dbaas_delete_role_host()
 {
-	if [ "X$1" = "X" ] || [ "X$2" = "X" ]; then
+	if [ -z "$1" ] || [ -z "$2" ]; then
 		prn_dbg "(dbaas_delete_role_host) Parameter is wrong."
 		return 1
 	fi
 	_DBAAS_DEL_ROLE_PATH=$1
 	_DBAAS_DEL_ROLE_HOST_NAME=$2
 
-	if [ "X$3" != "X" ]; then
+	if [ -n "$3" ]; then
 		_DBAAS_DEL_ROLE_HOST_PORT=$3
 	else
 		_DBAAS_DEL_ROLE_HOST_PORT=0
 	fi
 
-	if [ "X$4" != "X" ]; then
+	if [ -n "$4" ]; then
 		_DBAAS_DEL_ROLE_HOST_CUK=$4
 		_DBAAS_DEL_ROLE_HOST_CUK_OPT="--cuk"
 	else
@@ -1113,10 +1104,9 @@ dbaas_delete_role_host()
 	#
 	# Delete host from role(Run k2hr3)
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role host delete "${_DBAAS_DEL_ROLE_PATH}" --host "${_DBAAS_DEL_ROLE_HOST_NAME}" --port "${_DBAAS_DEL_ROLE_HOST_PORT}" "${_DBAAS_DEL_ROLE_HOST_CUK_OPT}" "${_DBAAS_DEL_ROLE_HOST_CUK}")
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role host delete "${_DBAAS_DEL_ROLE_PATH}" --host "${_DBAAS_DEL_ROLE_HOST_NAME}" --port "${_DBAAS_DEL_ROLE_HOST_PORT}" "${_DBAAS_DEL_ROLE_HOST_CUK_OPT}" "${_DBAAS_DEL_ROLE_HOST_CUK}"); then
 
-	if [ $? -ne 0 ]; then
 		prn_dbg "(dbaas_delete_role_host) Failed to delete ${_DBAAS_DEL_ROLE_HOST_NAME} from ${_DBAAS_DEL_ROLE_PATH} role : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1136,7 +1126,7 @@ dbaas_delete_role_host()
 #
 dbaas_delete_role_host_all()
 {
-	if [ "X$1" = "X" ]; then
+	if [ -z "$1" ]; then
 		prn_dbg "(dbaas_delete_role_host_all) Parameter is wrong."
 		return 1
 	fi
@@ -1166,8 +1156,7 @@ dbaas_delete_role_host_all()
 	#
 	# Parse
 	#
-	jsonparser_parse_json_string "${_DATABASE_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_RESULT}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to parse result."
 		return 1
 	fi
@@ -1176,8 +1165,7 @@ dbaas_delete_role_host_all()
 	#
 	# Search in server hosts->hostnames
 	#
-	jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOSTS_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames, thus skip this role."
 		rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 		return 1
@@ -1189,8 +1177,8 @@ dbaas_delete_role_host_all()
 	#
 	for _DATABASE_RESULT_HOSTNAME_POS in ${_DATABASE_RESULT_HOSTNAME_LIST}; do
 		_DATABASE_RESULT_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_RESULT_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames[${_DATABASE_RESULT_HOSTNAME_POS_RAW}], thus skip this role."
 			continue
 		fi
@@ -1203,9 +1191,8 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from openstack
 		#
-		if [ "X${_DATABASE_TMP_ROLE_HOST_CUK}" != "X" ]; then
-			delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${_DATABASE_TMP_ROLE_HOST_CUK}" ]; then
+			if ! delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 				prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from OpenStack."
 				rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 				return 1
@@ -1217,8 +1204,7 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from k2hr3
 		#
-		dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/server" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/server" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 			prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from ${_DBAAS_DELALL_ROLE_PATH}/server role"
 			rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 			return 1
@@ -1228,8 +1214,7 @@ dbaas_delete_role_host_all()
 	#
 	# Search in server hosts->ips
 	#
-	jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOSTS_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips, thus skip this role."
 		rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 		return 1
@@ -1241,8 +1226,8 @@ dbaas_delete_role_host_all()
 	#
 	for _DATABASE_RESULT_HOSTNAME_POS in ${_DATABASE_RESULT_HOSTNAME_LIST}; do
 		_DATABASE_RESULT_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_RESULT_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips[${_DATABASE_RESULT_HOSTNAME_POS_RAW}], thus skip this role."
 			continue
 		fi
@@ -1255,9 +1240,8 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from openstack
 		#
-		if [ "X${_DATABASE_TMP_ROLE_HOST_CUK}" != "X" ]; then
-			delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${_DATABASE_TMP_ROLE_HOST_CUK}" ]; then
+			if ! delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 				prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from OpenStack."
 				rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 				return 1
@@ -1269,8 +1253,7 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from k2hr3
 		#
-		dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/server" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/server" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 			prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from ${_DBAAS_DELALL_ROLE_PATH}/server role"
 			rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 			return 1
@@ -1287,8 +1270,7 @@ dbaas_delete_role_host_all()
 	#
 	# Parse
 	#
-	jsonparser_parse_json_string "${_DATABASE_RESULT}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_parse_json_string "${_DATABASE_RESULT}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to parse result."
 		return 1
 	fi
@@ -1297,8 +1279,7 @@ dbaas_delete_role_host_all()
 	#
 	# Search in slave hosts->hostnames
 	#
-	jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOSTS_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"hostnames"%' "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames, thus skip this role."
 		rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 		return 1
@@ -1310,8 +1291,8 @@ dbaas_delete_role_host_all()
 	#
 	for _DATABASE_RESULT_HOSTNAME_POS in ${_DATABASE_RESULT_HOSTNAME_LIST}; do
 		_DATABASE_RESULT_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_RESULT_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"hostnames\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->hostnames[${_DATABASE_RESULT_HOSTNAME_POS_RAW}], thus skip this role."
 			continue
 		fi
@@ -1324,9 +1305,8 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from openstack
 		#
-		if [ "X${_DATABASE_TMP_ROLE_HOST_CUK}" != "X" ]; then
-			delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${_DATABASE_TMP_ROLE_HOST_CUK}" ]; then
+			if ! delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 				prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from OpenStack."
 				rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 				return 1
@@ -1338,8 +1318,7 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from k2hr3
 		#
-		dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/slave" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/slave" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 			prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from ${_DBAAS_DELALL_ROLE_PATH}/slave role"
 			rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 			return 1
@@ -1349,8 +1328,7 @@ dbaas_delete_role_host_all()
 	#
 	# Search in slave hosts->ips
 	#
-	jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOSTS_PAERSED_FILE}"
-	if [ $? -ne 0 ]; then
+	if ! jsonparser_get_key_value '%"hosts"%"ips"%' "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 		prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips, thus skip this role."
 		rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 		return 1
@@ -1362,8 +1340,8 @@ dbaas_delete_role_host_all()
 	#
 	for _DATABASE_RESULT_HOSTNAME_POS in ${_DATABASE_RESULT_HOSTNAME_LIST}; do
 		_DATABASE_RESULT_HOSTNAME_POS_RAW=$(pecho -n "${_DATABASE_RESULT_HOSTNAME_POS}" | sed -e 's/\([^\\]\)\\s/\1 /g' -e 's/\\\\/\\/g')
-		jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+
+		if ! jsonparser_get_key_value "%\"hosts\"%\"ips\"%${_DATABASE_RESULT_HOSTNAME_POS_RAW}%" "${_DATABASE_HOSTS_PAERSED_FILE}"; then
 			prn_dbg "(dbaas_delete_role_host_all) Failed to get ${_DBAAS_DEL_ROLE_PATH} hosts->ips[${_DATABASE_RESULT_HOSTNAME_POS_RAW}], thus skip this role."
 			continue
 		fi
@@ -1376,9 +1354,8 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from openstack
 		#
-		if [ "X${_DATABASE_TMP_ROLE_HOST_CUK}" != "X" ]; then
-			delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${_DATABASE_TMP_ROLE_HOST_CUK}" ]; then
+			if ! delete_op_host "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 				prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from OpenStack."
 				rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 				return 1
@@ -1390,8 +1367,7 @@ dbaas_delete_role_host_all()
 		#
 		# Delete host from k2hr3
 		#
-		dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/slave" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host "${_DBAAS_DELALL_ROLE_PATH}/slave" "${_DATABASE_TMP_ROLE_HOST_NAME}" "${_DATABASE_TMP_ROLE_HOST_PORT}" "${_DATABASE_TMP_ROLE_HOST_CUK}"; then
 			prn_err "Failed to delete ${_DATABASE_TMP_ROLE_HOST_NAME} from ${_DBAAS_DELALL_ROLE_PATH}/slave role"
 			rm -f "${_DATABASE_HOSTS_PAERSED_FILE}"
 			return 1
@@ -1410,7 +1386,7 @@ dbaas_delete_role_host_all()
 #
 dbaas_delete_all_k2hr3()
 {
-	if [ "X$1" = "X" ]; then
+	if [ -z "$1" ]; then
 		prn_dbg "(dbaas_delete_all_k2hr3) Parameter is wrong."
 		return 1
 	fi
@@ -1421,9 +1397,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Slave Role
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_SLAVE}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_SLAVE}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_SLAVE} role : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1431,9 +1407,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Server Role
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_SERVER}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_SERVER}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_SERVER} role : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1441,9 +1417,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Top Role
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_NAME}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role delete "${_DBAAS_DEL_CLUSTER_NAME}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_NAME} role : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1451,9 +1427,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Policy
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" policy delete "${_DBAAS_DEL_CLUSTER_NAME}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" policy delete "${_DBAAS_DEL_CLUSTER_NAME}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_NAME} policy : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1461,9 +1437,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Slave Resource
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_SLAVE}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_SLAVE}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_SLAVE} resource : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1471,9 +1447,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Server Resource
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_SERVER}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_SERVER}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_SERVER} resource : ${_DATABASE_RESULT}"
 		return 1
 	fi
@@ -1481,9 +1457,9 @@ dbaas_delete_all_k2hr3()
 	#
 	# Delete Top Resource
 	#
-	_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_NAME}")
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource delete "${_DBAAS_DEL_CLUSTER_NAME}"); then
+
 		prn_dbg "(dbaas_delete_all_k2hr3) Failed to delete ${_DBAAS_DEL_CLUSTER_NAME} resource : ${_DATABASE_RESULT}"
 		return 1
 	fi

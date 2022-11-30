@@ -21,7 +21,7 @@
 #
 # Multiple read prevention
 #
-if [ "X${K2HR3CLI_DBAAS_OPTION_FILE_LOADED}" = "X1" ]; then
+if [ -n "${K2HR3CLI_DBAAS_OPTION_FILE_LOADED}" ] && [ "${K2HR3CLI_DBAAS_OPTION_FILE_LOADED}" = "1" ]; then
 	return 0
 fi
 K2HR3CLI_DBAAS_OPTION_FILE_LOADED=1
@@ -123,7 +123,14 @@ parse_dbaas_option()
 	while [ $# -gt 0 ]; do
 		_OPTION_TMP=$(to_lower "$1")
 
-		if [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_CONFIG_LONG}" ]; then
+		if [ -z "${_OPTION_TMP}" ]; then
+			if [ -z "${K2HR3CLI_OPTION_PARSER_REST}" ]; then
+				K2HR3CLI_OPTION_PARSER_REST="$1"
+			else
+				K2HR3CLI_OPTION_PARSER_REST="${K2HR3CLI_OPTION_PARSER_REST} $1"
+			fi
+
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_CONFIG_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_CONFIG}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_CONFIG_LONG} option."
 				return 1
@@ -139,7 +146,7 @@ parse_dbaas_option()
 			fi
 			_OPT_TMP_DBAAS_CONFIG=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_PORT_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_PORT_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_SERVER_PORT}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_PORT_LONG} option."
 				return 1
@@ -159,7 +166,7 @@ parse_dbaas_option()
 				_OPT_TMP_DBAAS_SERVER_PORT="$1"
 			fi
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_CTLPORT_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_CTLPORT_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_SERVER_CTLPORT}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_SERVER_CTLPORT_LONG} option."
 				return 1
@@ -179,7 +186,7 @@ parse_dbaas_option()
 				_OPT_TMP_DBAAS_SERVER_CTLPORT="$1"
 			fi
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_SLAVE_CTLPORT_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_SLAVE_CTLPORT_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_SLAVE_CTLPORT}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_SLAVE_CTLPORT_LONG} option."
 				return 1
@@ -199,7 +206,7 @@ parse_dbaas_option()
 				_OPT_TMP_DBAAS_SLAVE_CTLPORT="$1"
 			fi
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_RUN_USER_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_RUN_USER_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_RUN_USER}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_RUN_USER_LONG} option."
 				return 1
@@ -210,20 +217,20 @@ parse_dbaas_option()
 				return 1
 			fi
 			_OPTION_TMP_VAL=$(echo "$1" | grep -v "[^a-zA-Z0-9_]")
-			if [ "X${_OPTION_TMP_VAL}" = "X" ]; then
+			if [ -z "${_OPTION_TMP_VAL}" ]; then
 				prn_err "Invalid username specified with ${K2HR3CLI_COMMAND_OPT_DBAAS_RUN_USER_LONG} option."
 				return 1
 			fi
 			_OPT_TMP_DBAAS_RUN_USER="$1"
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_USER_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_USER_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_CREATE_USER}" ]; then
 				prn_err "already specified K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_USER_LONG option."
 				return 1
 			fi
 			_OPT_TMP_DBAAS_CREATE_USER=1
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_IDENTITY_URI_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_IDENTITY_URI_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_IDENTITY_URI_LONG} option."
 				return 1
@@ -236,7 +243,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_NOVA_URI_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_NOVA_URI_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_NOVA_URI_LONG} option."
 				return 1
@@ -249,7 +256,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_GLANCE_URI_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_GLANCE_URI_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_GLANCE_URI_LONG} option."
 				return 1
@@ -262,7 +269,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_NEUTRON_URI_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_NEUTRON_URI_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_NEUTRON_URI_LONG} option."
 				return 1
@@ -275,14 +282,14 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_ROLETOKEN_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_ROLETOKEN_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_CREATE_ROLETOKEN}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_DBAAS_CREATE_ROLETOKEN_LONG} option."
 				return 1
 			fi
 			_OPT_TMP_DBAAS_CREATE_ROLETOKEN=1
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_USER_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_USER_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_USER}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_USER_LONG} option."
 				return 1
@@ -295,7 +302,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_USER=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_USER=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_USER}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_PASS_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_PASS_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_PASS}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_PASS_LONG} option."
 				return 1
@@ -308,7 +315,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_PASS=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_PASS=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_PASS}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_TENANT_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_TENANT_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_TENANT}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_TENANT_LONG} option."
 				return 1
@@ -321,14 +328,14 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_TENANT=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_TENANT=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_TENANT}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_NO_SECGRP_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_NO_SECGRP_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NO_SECGRP}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_NO_SECGRP_LONG} option."
 				return 1
 			fi
 			_OPT_TMP_DBAAS_OPENSTACK_NO_SECGRP=1
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_KEYPAIR_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_KEYPAIR_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_KEYPAIR_LONG} option."
 				return 1
@@ -341,7 +348,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_LONG} option."
 				return 1
@@ -354,7 +361,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_FLAVOR=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_FLAVOR=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_ID_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_ID_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_ID_LONG} option."
 				return 1
@@ -367,7 +374,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_LONG} option."
 				return 1
@@ -380,7 +387,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_IMAGE=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_IMAGE=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_ID_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_ID_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_ID_LONG} option."
 				return 1
@@ -393,7 +400,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 			_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID=$(filter_null_string "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID}")
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_BLOCKDEVICE_LONG}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_BLOCKDEVICE_LONG}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_BLOCKDEVICE}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_BLOCKDEVICE_LONG} option."
 				return 1
@@ -405,7 +412,7 @@ parse_dbaas_option()
 			fi
 			_OPT_TMP_DBAAS_OPENSTACK_BLOCKDEVICE=$(cut_special_words "$1" | sed -e 's/%20/ /g' -e 's/%25/%/g')
 
-		elif [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_LONG}" ] || [ "X${_OPTION_TMP}" = "X${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_SHORT}" ]; then
+		elif [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_LONG}" ] || [ "${_OPTION_TMP}" = "${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_SHORT}" ]; then
 			if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_CONFIRM_YES}" ]; then
 				prn_err "already specified ${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_LONG}(${K2HR3CLI_COMMAND_OPT_OPENSTACK_CONFIRM_YES_SHORT}) option."
 				return 1
@@ -413,7 +420,7 @@ parse_dbaas_option()
 			_OPT_TMP_DBAAS_OPENSTACK_CONFIRM_YES=1
 
 		else
-			if [ "X${K2HR3CLI_OPTION_PARSER_REST}" = "X" ]; then
+			if [ -z "${K2HR3CLI_OPTION_PARSER_REST}" ]; then
 				K2HR3CLI_OPTION_PARSER_REST="$1"
 			else
 				K2HR3CLI_OPTION_PARSER_REST="${K2HR3CLI_OPTION_PARSER_REST} $1"
@@ -426,145 +433,111 @@ parse_dbaas_option()
 	# Set override default and global value
 	#
 	if [ -n "${_OPT_TMP_DBAAS_CONFIG}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_DBAAS_CONFIG=${_OPT_TMP_DBAAS_CONFIG}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_SERVER_PORT}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SERVER_PORT=${_OPT_TMP_DBAAS_SERVER_PORT}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SERVER_PORT=${K2HR3CLI_COMMAND_OPT_DBAAS_DEFALT_SERVER_PORT}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_SERVER_CTLPORT}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SERVER_CTLPORT=${_OPT_TMP_DBAAS_SERVER_CTLPORT}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SERVER_CTLPORT=${K2HR3CLI_COMMAND_OPT_DBAAS_DEFALT_SERVER_CTLPORT}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_SLAVE_CTLPORT}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SLAVE_CTLPORT=${_OPT_TMP_DBAAS_SLAVE_CTLPORT}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_SLAVE_CTLPORT=${K2HR3CLI_COMMAND_OPT_DBAAS_DEFALT_SLAVE_CTLPORT}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_RUN_USER}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_RUN_USER=${_OPT_TMP_DBAAS_RUN_USER}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_RUN_USER=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_CREATE_USER}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_CREATE_USER=${_OPT_TMP_DBAAS_CREATE_USER}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_CREATE_USER=0
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_CREATE_ROLETOKEN}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_CREATE_ROLETOKEN=${_OPT_TMP_DBAAS_CREATE_ROLETOKEN}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPT_DBAAS_CREATE_ROLETOKEN=0
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_IDENTITY_URI}" != "X${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}" ]; then
+		if [ -z "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" ] || [ "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" != "${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}" ]; then
 			add_config_update_var "K2HR3CLI_OPENSTACK_IDENTITY_URI"
 		fi
 		K2HR3CLI_OPENSTACK_IDENTITY_URI=${_OPT_TMP_DBAAS_OPENSTACK_IDENTITY_URI}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_NOVA_URI}" != "X${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}" ]; then
+		if [ -z "${K2HR3CLI_OPENSTACK_NOVA_URI}" ] || [ "${K2HR3CLI_OPENSTACK_NOVA_URI}" != "${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}" ]; then
 			add_config_update_var "K2HR3CLI_OPENSTACK_NOVA_URI"
 		fi
 		K2HR3CLI_OPENSTACK_NOVA_URI=${_OPT_TMP_DBAAS_OPENSTACK_NOVA_URI}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_GLANCE_URI}" != "X${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}" ]; then
+		if [ -z "${K2HR3CLI_OPENSTACK_GLANCE_URI}" ] || [ "${K2HR3CLI_OPENSTACK_GLANCE_URI}" != "${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}" ]; then
 			add_config_update_var "K2HR3CLI_OPENSTACK_GLANCE_URI"
 		fi
 		K2HR3CLI_OPENSTACK_GLANCE_URI=${_OPT_TMP_DBAAS_OPENSTACK_GLANCE_URI}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}" ]; then
-		if [ "X${K2HR3CLI_OPENSTACK_NEUTRON_URI}" != "X${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}" ]; then
+		if [ -z "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" ] || [ "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" != "${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}" ]; then
 			add_config_update_var "K2HR3CLI_OPENSTACK_NEUTRON_URI"
 		fi
 		K2HR3CLI_OPENSTACK_NEUTRON_URI=${_OPT_TMP_DBAAS_OPENSTACK_NEUTRON_URI}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_USER}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_USER=${_OPT_TMP_DBAAS_OPENSTACK_USER}
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_USER_ID=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_PASS}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_PASS=${_OPT_TMP_DBAAS_OPENSTACK_PASS}
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_TENANT}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_TENANT=${_OPT_TMP_DBAAS_OPENSTACK_TENANT}
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_TENANT_ID=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_NO_SECGRP}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_NO_SECGRP=${_OPT_TMP_DBAAS_OPENSTACK_NO_SECGRP}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_NO_SECGRP=0
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_KEYPAIR=${_OPT_TMP_DBAAS_OPENSTACK_KEYPAIR}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_KEYPAIR=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_FLAVOR=${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_FLAVOR=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_FLAVOR_ID=${_OPT_TMP_DBAAS_OPENSTACK_FLAVOR_ID}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_FLAVOR_ID=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_IMAGE=${_OPT_TMP_DBAAS_OPENSTACK_IMAGE}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_IMAGE=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_IMAGE_ID=${_OPT_TMP_DBAAS_OPENSTACK_IMAGE_ID}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_IMAGE_ID=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_BLOCKDEVICE}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_BCLOKDEVICE=${_OPT_TMP_DBAAS_OPENSTACK_BLOCKDEVICE}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_BCLOKDEVICE=""
 	fi
 	if [ -n "${_OPT_TMP_DBAAS_OPENSTACK_CONFIRM_YES}" ]; then
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_CONFIRM_YES=${_OPT_TMP_DBAAS_OPENSTACK_CONFIRM_YES}
 	else
-		# shellcheck disable=SC2034
 		K2HR3CLI_OPENSTACK_CONFIRM_YES=0
 	fi
 
@@ -580,7 +553,7 @@ parse_dbaas_option()
 				break
 			fi
 			_OPT_TMP_URI_LAST_CH=$(pecho -n "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" | cut -b "${_OPT_TMP_URI_LAST_POS}")
-			if [ "X${_OPT_TMP_URI_LAST_CH}" = "X/" ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X " ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X${K2HR3CLI_TAB_WORD}" ]; then
+			if [ -n "${_OPT_TMP_URI_LAST_CH}" ] && { [ "${_OPT_TMP_URI_LAST_CH}" = "/" ] || [ "${_OPT_TMP_URI_LAST_CH}" = " " ] || [ "${_OPT_TMP_URI_LAST_CH}" = "${K2HR3CLI_TAB_WORD}" ]; }; then
 				if [ "${_OPT_TMP_URI_LAST_POS}" -gt 1 ]; then
 					_OPT_TMP_URI_LAST_POS=$((_OPT_TMP_URI_LAST_POS - 1))
 					K2HR3CLI_OPENSTACK_IDENTITY_URI=$(pecho -n "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" | cut -c 1-"${_OPT_TMP_URI_LAST_POS}")
@@ -600,7 +573,7 @@ parse_dbaas_option()
 				break
 			fi
 			_OPT_TMP_URI_LAST_CH=$(pecho -n "${K2HR3CLI_OPENSTACK_NOVA_URI}" | cut -b "${_OPT_TMP_URI_LAST_POS}")
-			if [ "X${_OPT_TMP_URI_LAST_CH}" = "X/" ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X " ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X${K2HR3CLI_TAB_WORD}" ]; then
+			if [ -n "${_OPT_TMP_URI_LAST_CH}" ] && { [ "${_OPT_TMP_URI_LAST_CH}" = "/" ] || [ "${_OPT_TMP_URI_LAST_CH}" = " " ] || [ "${_OPT_TMP_URI_LAST_CH}" = "${K2HR3CLI_TAB_WORD}" ]; }; then
 				if [ "${_OPT_TMP_URI_LAST_POS}" -gt 1 ]; then
 					_OPT_TMP_URI_LAST_POS=$((_OPT_TMP_URI_LAST_POS - 1))
 					K2HR3CLI_OPENSTACK_NOVA_URI=$(pecho -n "${K2HR3CLI_OPENSTACK_NOVA_URI}" | cut -c 1-"${_OPT_TMP_URI_LAST_POS}")
@@ -620,7 +593,7 @@ parse_dbaas_option()
 				break
 			fi
 			_OPT_TMP_URI_LAST_CH=$(pecho -n "${K2HR3CLI_OPENSTACK_GLANCE_URI}" | cut -b "${_OPT_TMP_URI_LAST_POS}")
-			if [ "X${_OPT_TMP_URI_LAST_CH}" = "X/" ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X " ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X${K2HR3CLI_TAB_WORD}" ]; then
+			if [ -n "${_OPT_TMP_URI_LAST_CH}" ] && { [ "${_OPT_TMP_URI_LAST_CH}" = "/" ] || [ "${_OPT_TMP_URI_LAST_CH}" = " " ] || [ "${_OPT_TMP_URI_LAST_CH}" = "${K2HR3CLI_TAB_WORD}" ]; }; then
 				if [ "${_OPT_TMP_URI_LAST_POS}" -gt 1 ]; then
 					_OPT_TMP_URI_LAST_POS=$((_OPT_TMP_URI_LAST_POS - 1))
 					K2HR3CLI_OPENSTACK_GLANCE_URI=$(pecho -n "${K2HR3CLI_OPENSTACK_GLANCE_URI}" | cut -c 1-"${_OPT_TMP_URI_LAST_POS}")
@@ -640,7 +613,7 @@ parse_dbaas_option()
 				break
 			fi
 			_OPT_TMP_URI_LAST_CH=$(pecho -n "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" | cut -b "${_OPT_TMP_URI_LAST_POS}")
-			if [ "X${_OPT_TMP_URI_LAST_CH}" = "X/" ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X " ] || [ "X${_OPT_TMP_URI_LAST_CH}" = "X${K2HR3CLI_TAB_WORD}" ]; then
+			if [ -n "${_OPT_TMP_URI_LAST_CH}" ] && { [ "${_OPT_TMP_URI_LAST_CH}" = "/" ] || [ "${_OPT_TMP_URI_LAST_CH}" = " " ] || [ "${_OPT_TMP_URI_LAST_CH}" = "${K2HR3CLI_TAB_WORD}" ]; }; then
 				if [ "${_OPT_TMP_URI_LAST_POS}" -gt 1 ]; then
 					_OPT_TMP_URI_LAST_POS=$((_OPT_TMP_URI_LAST_POS - 1))
 					K2HR3CLI_OPENSTACK_NEUTRON_URI=$(pecho -n "${K2HR3CLI_OPENSTACK_NEUTRON_URI}" | cut -c 1-"${_OPT_TMP_URI_LAST_POS}")

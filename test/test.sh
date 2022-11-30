@@ -75,7 +75,7 @@ for _TEST_FILE_TMP in "${TESTDIR}"/*; do
 		"${TESTMAINBIN}")
 			;;
 		test_*.sh)
-			if [ "X${TEST_FILES}" = "X" ]; then
+			if [ -z "${TEST_FILES}" ]; then
 				TEST_FILES=${_TEST_FILE_TMP}
 			else
 				TEST_FILES="${TEST_FILES} ${_TEST_FILE_TMP}"
