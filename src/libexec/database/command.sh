@@ -29,7 +29,6 @@ K2HR3CLIBIN=${BINDIR}/${BINNAME}
 #
 # Directry Path
 #
-# shellcheck disable=SC2034
 _DATABASE_CURRENT_DIR=${LIBEXECDIR}/${K2HR3CLI_MODE}
 
 #
@@ -87,8 +86,7 @@ fi
 #
 # Check dbaas options
 #
-parse_dbaas_option "$@"
-if [ $? -ne 0 ]; then
+if ! parse_dbaas_option "$@"; then
 	exit 1
 else
 	# shellcheck disable=SC2086
@@ -101,11 +99,10 @@ fi
 #
 # Sub Command
 #
-parse_noprefix_option "$@"
-if [ $? -ne 0 ]; then
+if ! parse_noprefix_option "$@"; then
 	exit 1
 fi
-if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 	K2HR3CLI_SUBCOMMAND=""
 else
 	#
@@ -119,15 +116,14 @@ set -- ${K2HR3CLI_OPTION_PARSER_REST}
 #
 # After sub command
 #
-if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
+if [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Create Cluster(cluster name)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_CLUSTER_NAME=""
 	else
 		#
@@ -138,15 +134,14 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	# shellcheck disable=SC2086
 	set -- ${K2HR3CLI_OPTION_PARSER_REST}
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
+elif [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	#
 	# Show host/configuration(type)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_SHOW_TYPE=""
 	else
 		#
@@ -160,11 +155,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	#
 	# Show host/configuration(target)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_SHOW_TARGET=""
 	else
 		#
@@ -178,11 +172,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	#
 	# Show host/configuration(cluster name)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_CLUSTER_NAME=""
 	else
 		#
@@ -193,15 +186,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	# shellcheck disable=SC2086
 	set -- ${K2HR3CLI_OPTION_PARSER_REST}
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
+elif [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Add host(type)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_ADD_TYPE=""
 	else
 		#
@@ -215,11 +207,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Add host(target)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_ADD_TARGET=""
 	else
 		#
@@ -233,11 +224,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Add host(cluster name)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_CLUSTER_NAME=""
 	else
 		#
@@ -251,11 +241,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Add host(hostname)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_HOST_NAME=""
 	else
 		#
@@ -267,15 +256,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	set -- ${K2HR3CLI_OPTION_PARSER_REST}
 
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
+elif [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	#
 	# Delete host/cluster(type)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_DELETE_TYPE=""
 	else
 		#
@@ -289,11 +277,10 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	#
 	# Delete host/cluster(cluster name)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_CLUSTER_NAME=""
 	else
 		#
@@ -304,15 +291,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	# shellcheck disable=SC2086
 	set -- ${K2HR3CLI_OPTION_PARSER_REST}
 
-	if [ "X${K2HR3CLI_DBAAS_DELETE_TYPE}" = "X${_DATABASE_COMMAND_TYPE_HOST}" ]; then
+	if [ -n "${K2HR3CLI_DBAAS_DELETE_TYPE}" ] && [ "${K2HR3CLI_DBAAS_DELETE_TYPE}" = "${_DATABASE_COMMAND_TYPE_HOST}" ]; then
 		#
 		# Delete host(hostname)
 		#
-		parse_noprefix_option "$@"
-		if [ $? -ne 0 ]; then
+		if ! parse_noprefix_option "$@"; then
 			exit 1
 		fi
-		if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+		if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 			K2HR3CLI_DBAAS_HOST_NAME=""
 		else
 			#
@@ -324,15 +310,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		set -- ${K2HR3CLI_OPTION_PARSER_REST}
 	fi
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
+elif [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 	#
 	# OpenStack (type)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_OPENSTACK_TYPE=""
 	else
 		#
@@ -344,15 +329,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 	set -- ${K2HR3CLI_OPTION_PARSER_REST}
 
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_LIST}" ]; then
+elif [ -n "${K2HR3CLI_SUBCOMMAND}" ] && [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_LIST}" ]; then
 	#
 	# List (type)
 	#
-	parse_noprefix_option "$@"
-	if [ $? -ne 0 ]; then
+	if ! parse_noprefix_option "$@"; then
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_OPTION_NOPREFIX}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPTION_NOPREFIX}" ]; then
 		K2HR3CLI_DBAAS_LIST_TYPE=""
 	else
 		#
@@ -370,22 +354,28 @@ fi
 #
 # Check URI
 #
-if [ "X${K2HR3CLI_OPENSTACK_IDENTITY_URI}" = "X" ]; then
+if [ -z "${K2HR3CLI_OPENSTACK_IDENTITY_URI}" ]; then
 	prn_warn "The URI for OpenStack(Identity) is not specified, some commands require this. Please specify with the ${K2HR3CLI_COMMAND_OPT_OPENSTACK_IDENTITY_URI_LONG} option, K2HR3CLI_OPENSTACK_IDENTITY_URI environment variable, or configuration."
 fi
 
 #
 # Check Cluster name parameter
 #
-if [ "X${K2HR3CLI_SUBCOMMAND}" != "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ] &&  [ "X${K2HR3CLI_SUBCOMMAND}" != "X${_DATABASE_COMMAND_SUB_LIST}" ] && [ "X${K2HR3CLI_DBAAS_CLUSTER_NAME}" = "X" ]; then
-	prn_err "Cluster name is not specified, please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
-	exit 1
+if [ -z "${K2HR3CLI_SUBCOMMAND}" ] || { [ "${K2HR3CLI_SUBCOMMAND}" != "${_DATABASE_COMMAND_SUB_OPENSTACK}" ] &&  [ "${K2HR3CLI_SUBCOMMAND}" != "${_DATABASE_COMMAND_SUB_LIST}" ]; }; then
+	if [ -z "${K2HR3CLI_DBAAS_CLUSTER_NAME}" ]; then
+		prn_err "Cluster name is not specified, please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+		exit 1
+	fi
 fi
 
 #
 # Main
 #
-if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
+if [ -z "${K2HR3CLI_SUBCOMMAND}" ]; then
+	prn_err "\"${BINNAME} ${K2HR3CLI_MODE}\" must also specify the subcommand(${_DATABASE_COMMAND_SUB_CREATE}, ${_DATABASE_COMMAND_SUB_SHOW}, ${_DATABASE_COMMAND_SUB_ADD} or ${_DATABASE_COMMAND_SUB_DELETE}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+	exit 1
+
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# DATABASE CREATE
 	#
@@ -393,8 +383,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Get Scoped Token
 	#
-	complement_scoped_token
-	if [ $? -ne 0 ]; then
+	if ! complement_scoped_token; then
 		exit 1
 	fi
 	prn_dbg "${K2HR3CLI_SCOPED_TOKEN}"
@@ -402,8 +391,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Create new token
 	#
-	complement_op_token
-	if [ $? -ne 0 ]; then
+	if ! complement_op_token; then
 		prn_err "Failed to create OpenStack Scoped Token"
 		exit 1
 	fi
@@ -411,16 +399,14 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Get resource template file path
 	#
-	dbaas_get_resource_filepath
-	if [ $? -ne 0 ]; then
+	if ! dbaas_get_resource_filepath; then
 		exit 1
 	fi
 
 	#
 	# Get Tenant name from Scoped Token
 	#
-	_DATABASE_TENANT_NAME=$(dbaas_get_current_tenant)
-	if [ $? -ne 0 ]; then
+	if ! _DATABASE_TENANT_NAME=$(dbaas_get_current_tenant); then
 		exit 1
 	fi
 
@@ -438,10 +424,10 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	# Make resource keys data
 	#
 	_DATABASE_RESOURCE_KEYS_RUN_USER=""
-	if [ "X${K2HR3CLI_OPT_DBAAS_RUN_USER}" != "X" ]; then
+	if [ -n "${K2HR3CLI_OPT_DBAAS_RUN_USER}" ]; then
 		_DATABASE_RESOURCE_KEYS_RUN_USER=",\"k2hdkc-dbaas-proc-user\":\"${K2HR3CLI_OPT_DBAAS_RUN_USER}\""
 	fi
-	if [ "X${K2HR3CLI_OPT_DBAAS_CREATE_USER}" = "X1" ]; then
+	if [ -n "${K2HR3CLI_OPT_DBAAS_CREATE_USER}" ] && [ "${K2HR3CLI_OPT_DBAAS_CREATE_USER}" = "1" ]; then
 		_DATABASE_RESOURCE_KEYS_RUN_USER="${_DATABASE_RESOURCE_KEYS_RUN_USER},\"k2hdkc-dbaas-add-user\":1"
 	fi
 	_DATABASE_RESOURCE_KEYS="{\"cluster-name\":\"${K2HR3CLI_DBAAS_CLUSTER_NAME}\",\"chmpx-server-port\":${K2HR3CLI_OPT_DBAAS_SERVER_PORT},\"chmpx-server-ctlport\":${K2HR3CLI_OPT_DBAAS_SERVER_CTLPORT},\"chmpx-slave-ctlport\":${K2HR3CLI_OPT_DBAAS_SLAVE_CTLPORT}${_DATABASE_RESOURCE_KEYS_RUN_USER}}"
@@ -449,10 +435,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" -type string --datafile "${_DATABASE_CONFIG_FILE_TMP}" --keys "${_DATABASE_RESOURCE_KEYS}" > /dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" -type string --datafile "${_DATABASE_CONFIG_FILE_TMP}" --keys "${_DATABASE_RESOURCE_KEYS}" > /dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\""
 		rm -f "${_DATABASE_CONFIG_FILE_TMP}"
 		exit 1
@@ -466,8 +451,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Load keys data
 	#
-	dbaas_load_resource_keys
-	if [ $? -ne 0 ]; then
+	if ! dbaas_load_resource_keys; then
 		exit 1
 	fi
 
@@ -479,10 +463,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3 for server resource
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/server" --keys "${_DATABASE_RESOURCE_SERVER_KEYS}" > /dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/server" --keys "${_DATABASE_RESOURCE_SERVER_KEYS}" > /dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}/server\" Resource"
 		exit 1
 	fi
@@ -496,10 +479,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3 for server resource
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave" --keys "${_DATABASE_RESOURCE_SLAVE_KEYS}" > /dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" resource create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave" --keys "${_DATABASE_RESOURCE_SLAVE_KEYS}" > /dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave\" Resource"
 		exit 1
 	fi
@@ -516,10 +498,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" policy create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" --effect 'allow' --action 'yrn:yahoo::::action:read' --resource "${_DATABASE_POLICY_RESOURCES}" >/dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" policy create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" --effect 'allow' --action 'yrn:yahoo::::action:read' --resource "${_DATABASE_POLICY_RESOURCES}" >/dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\" Policy"
 		exit 1
 	fi
@@ -536,10 +517,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" --policies "${_DATABASE_ROLE_POLICIES}" >/dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}" --policies "${_DATABASE_ROLE_POLICIES}" >/dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\" Role"
 		exit 1
 	fi
@@ -551,10 +531,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3 for server
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/server" >/dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/server" >/dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}/server\" Role"
 		exit 1
 	fi
@@ -563,10 +542,9 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	# Run k2hr3 for slave
 	#
-	K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-	"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave" >/dev/null
+	if ! K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+		"${K2HR3CLIBIN}" role create "${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave" >/dev/null; then
 
-	if [ $? -ne 0 ]; then
 		prn_msg "${CRED}Failed${CDEF} : Phase : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}/slave\" Role"
 		exit 1
 	fi
@@ -583,8 +561,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 			#
 			# Security group for server
 			#
-			create_op_security_group "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 0
-			if [ $? -ne 0 ]; then
+			if ! create_op_security_group "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 0; then
 				prn_msg "${CRED}Failed${CDEF} : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\"cluster : Could not create security group for server."
 				exit 1
 			fi
@@ -592,8 +569,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 			#
 			# Security group for slave
 			#
-			create_op_security_group "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 1
-			if [ $? -ne 0 ]; then
+			if ! create_op_security_group "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 1; then
 				prn_msg "${CRED}Failed${CDEF} : Create \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\"cluster : Could not create security group for slave."
 				exit 1
 			fi
@@ -605,7 +581,7 @@ if [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_CREATE}" ]; then
 	#
 	prn_msg "${CGRN}Succeed${CDEF} : Registration of cluster \"${K2HR3CLI_DBAAS_CLUSTER_NAME}\" with K2HR3 is complete"
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	#
 	# DATABASE SHOW
 	#
@@ -613,17 +589,20 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 	#
 	# Get Scoped Token
 	#
-	complement_scoped_token
-	if [ $? -ne 0 ]; then
+	if ! complement_scoped_token; then
 		exit 1
 	fi
 	prn_dbg "${K2HR3CLI_SCOPED_TOKEN}"
 
-	if [ "X${K2HR3CLI_DBAAS_SHOW_TYPE}" = "X${_DATABASE_COMMAND_TYPE_HOST}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_SHOW_TYPE}" ]; then
+		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the type(${_DATABASE_COMMAND_TYPE_HOST} or ${_DATABASE_COMMAND_TYPE_CONF_LONG}(${_DATABASE_COMMAND_TYPE_CONF})), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+		exit 1
+
+	elif [ "${K2HR3CLI_DBAAS_SHOW_TYPE}" = "${_DATABASE_COMMAND_TYPE_HOST}" ]; then
 		#
 		# DATABASE SHOW HOST
 		#
-		if [ "X${K2HR3CLI_DBAAS_SHOW_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "X${K2HR3CLI_DBAAS_SHOW_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SLAVE}" ]; then
+		if [ -z "${K2HR3CLI_DBAAS_SHOW_TARGET}" ] || { [ "${K2HR3CLI_DBAAS_SHOW_TARGET}" != "${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "${K2HR3CLI_DBAAS_SHOW_TARGET}" != "${_DATABASE_COMMAND_TARGET_SLAVE}" ]; }; then
 			prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND} ${K2HR3CLI_DBAAS_SHOW_TYPE}\" must also specify the (${_DATABASE_COMMAND_TARGET_SERVER} or ${_DATABASE_COMMAND_TARGET_SLAVE}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 			exit 1
 		fi
@@ -634,28 +613,25 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 		_DATABSE_SHOW_BACKUP_OPT_JSON=${K2HR3CLI_OPT_JSON}
 		K2HR3CLI_OPT_JSON=0
 
-		_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_OPT_JSON="${K2HR3CLI_OPT_JSON}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-		"${K2HR3CLIBIN}" role show "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${K2HR3CLI_DBAAS_SHOW_TARGET}")
+		if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_OPT_JSON="${K2HR3CLI_OPT_JSON}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+			"${K2HR3CLIBIN}" role show "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${K2HR3CLI_DBAAS_SHOW_TARGET}"); then
 
-		K2HR3CLI_OPT_JSON=${_DATABSE_SHOW_BACKUP_OPT_JSON}
-
-		#
-		# Check Result
-		#
-		if [ $? -ne 0 ]; then
-			if [ "X${_DATABASE_RESULT}" = "X" ]; then
+			#
+			# Check Result(failure)
+			#
+			if [ -z "${_DATABASE_RESULT}" ]; then
 				prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Failed Sub Process"
 			else
 				prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Sub Process Result(${_DATABASE_RESULT})"
 			fi
 			exit 1
 		fi
+		K2HR3CLI_OPT_JSON=${_DATABSE_SHOW_BACKUP_OPT_JSON}
 
 		#
 		# Parse Result
 		#
-		jsonparser_parse_json_string "${_DATABASE_RESULT}"
-		if [ $? -ne 0 ]; then
+		if ! jsonparser_parse_json_string "${_DATABASE_RESULT}"; then
 			prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Failed to parse result"
 			exit 1
 		fi
@@ -663,8 +639,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 		#
 		# Parse Result
 		#
-		dbaas_show_all_hosts "${JP_PAERSED_FILE}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_show_all_hosts "${JP_PAERSED_FILE}"; then
 			prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster"
 			rm -f "${JP_PAERSED_FILE}"
 			exit 1
@@ -675,15 +650,15 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 		# Print result
 		#
 		jsonparser_dump_string "${DATABSE_HOST_LIST}"
-		if [ "X${K2HR3CLI_OPT_JSON}" != "X1" ]; then
+		if [ -z "${K2HR3CLI_OPT_JSON}" ] || [ "${K2HR3CLI_OPT_JSON}" != "1" ]; then
 			pecho ""
 		fi
 
-	elif [ "X${K2HR3CLI_DBAAS_SHOW_TYPE}" = "X${_DATABASE_COMMAND_TYPE_CONF}" ] || [ "X${K2HR3CLI_DBAAS_SHOW_TYPE}" = "X${_DATABASE_COMMAND_TYPE_CONF_LONG}" ]; then
+	elif [ "${K2HR3CLI_DBAAS_SHOW_TYPE}" = "${_DATABASE_COMMAND_TYPE_CONF}" ] || [ "${K2HR3CLI_DBAAS_SHOW_TYPE}" = "${_DATABASE_COMMAND_TYPE_CONF_LONG}" ]; then
 		#
 		# DATABASE SHOW CONFIGURATION
 		#
-		if [ "X${K2HR3CLI_DBAAS_SHOW_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "X${K2HR3CLI_DBAAS_SHOW_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SLAVE}" ]; then
+		if [ -z "${K2HR3CLI_DBAAS_SHOW_TARGET}" ] || { [ "${K2HR3CLI_DBAAS_SHOW_TARGET}" != "${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "${K2HR3CLI_DBAAS_SHOW_TARGET}" != "${_DATABASE_COMMAND_TARGET_SLAVE}" ]; }; then
 			prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND} ${K2HR3CLI_DBAAS_SHOW_TYPE}\" must also specify the (${_DATABASE_COMMAND_TARGET_SERVER} or ${_DATABASE_COMMAND_TARGET_SLAVE}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 			exit 1
 		fi
@@ -691,14 +666,13 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 		#
 		# Run k2hr3 for server resource
 		#
-		_DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_OPT_JSON="${K2HR3CLI_OPT_JSON}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
-		"${K2HR3CLIBIN}" resource show "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${K2HR3CLI_DBAAS_SHOW_TARGET}" --expand)
+		if ! _DATABASE_RESULT=$(K2HR3CLI_API_URI="${K2HR3CLI_API_URI}" K2HR3CLI_OPT_CONFIG="${K2HR3CLI_OPT_CONFIG}" K2HR3CLI_MSGLEVEL="${K2HR3CLI_MSGLEVEL_VALUE}" K2HR3CLI_OPT_CURLDBG="${K2HR3CLI_OPT_CURLDBG}" K2HR3CLI_OPT_CURLBODY="${K2HR3CLI_OPT_CURLBODY}" K2HR3CLI_OPT_JSON="${K2HR3CLI_OPT_JSON}" K2HR3CLI_SCOPED_TOKEN="${K2HR3CLI_SCOPED_TOKEN}" K2HR3CLI_SCOPED_TOKEN_VERIFIED="${K2HR3CLI_SCOPED_TOKEN_VERIFIED}" \
+			"${K2HR3CLIBIN}" resource show "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${K2HR3CLI_DBAAS_SHOW_TARGET}" --expand); then
 
-		#
-		# Check Result
-		#
-		if [ $? -ne 0 ]; then
-			if [ "X${_DATABASE_RESULT}" = "X" ]; then
+			#
+			# Check Result(failure)
+			#
+			if [ -z "${_DATABASE_RESULT}" ]; then
 				prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} configuration for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Failed Sub Process"
 			else
 				prn_msg "${CRED}Failed${CDEF} : Show ${K2HR3CLI_DBAAS_SHOW_TARGET} configuration for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Sub Process Result(${_DATABASE_RESULT})"
@@ -716,19 +690,19 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_SHOW}" ]; then
 		exit 1
 	fi
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# DATABASE ADD
 	#
-	if [ "X${K2HR3CLI_DBAAS_ADD_TYPE}" != "X${_DATABASE_COMMAND_TYPE_HOST}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_ADD_TYPE}" ] || [ "${K2HR3CLI_DBAAS_ADD_TYPE}" != "${_DATABASE_COMMAND_TYPE_HOST}" ]; then
 		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the (${_DATABASE_COMMAND_TYPE_HOST}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_DBAAS_ADD_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "X${K2HR3CLI_DBAAS_ADD_TARGET}" != "X${_DATABASE_COMMAND_TARGET_SLAVE}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_ADD_TARGET}" ] || { [ "${K2HR3CLI_DBAAS_ADD_TARGET}" != "${_DATABASE_COMMAND_TARGET_SERVER}" ] && [ "${K2HR3CLI_DBAAS_ADD_TARGET}" != "${_DATABASE_COMMAND_TARGET_SLAVE}" ]; }; then
 		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the (${_DATABASE_COMMAND_TARGET_SERVER} or ${_DATABASE_COMMAND_TARGET_SLAVE}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 		exit 1
 	fi
-	if [ "X${K2HR3CLI_DBAAS_HOST_NAME}" = "X" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_HOST_NAME}" ]; then
 		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must specify the host name, please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 		exit 1
 	fi
@@ -736,8 +710,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Get Scoped Token
 	#
-	complement_scoped_token
-	if [ $? -ne 0 ]; then
+	if ! complement_scoped_token; then
 		exit 1
 	fi
 	prn_dbg "${K2HR3CLI_SCOPED_TOKEN}"
@@ -745,8 +718,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Get OpenStack Scoped Token
 	#
-	complement_op_token
-	if [ $? -ne 0 ]; then
+	if ! complement_op_token; then
 		prn_err "Failed to get OpenStack Scoped Token"
 		exit 1
 	fi
@@ -761,9 +733,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	_DATABASE_ADD_HOST_ROLETOKEN=""
 	_DATABASE_ADD_HOST_REGISTERPATH=""
-	if [ "X${K2HR3CLI_OPT_DBAAS_CREATE_ROLETOKEN}" != "X1" ]; then
-		dbaas_get_existed_role_token "${_DATABASE_ADD_HOST_CLUSTER}"
-		if [ $? -eq 0 ]; then
+	if [ -z "${K2HR3CLI_OPT_DBAAS_CREATE_ROLETOKEN}" ] || [ "${K2HR3CLI_OPT_DBAAS_CREATE_ROLETOKEN}" != "1" ]; then
+		if dbaas_get_existed_role_token "${_DATABASE_ADD_HOST_CLUSTER}"; then
 			_DATABASE_ADD_HOST_ROLETOKEN=${DBAAS_FOUND_ROLETOKEN}
 			_DATABASE_ADD_HOST_REGISTERPATH=${DBAAS_FOUND_REGISTERPATH}
 		fi
@@ -772,9 +743,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Create New Role Token
 	#
-	if [ "X${_DATABASE_ADD_HOST_ROLETOKEN}" = "X" ]; then
-		dbaas_create_role_token "${_DATABASE_ADD_HOST_CLUSTER}"
-		if [ $? -eq 0 ]; then
+	if [ -z "${_DATABASE_ADD_HOST_ROLETOKEN}" ]; then
+		if dbaas_create_role_token "${_DATABASE_ADD_HOST_CLUSTER}"; then
 			_DATABASE_ADD_HOST_ROLETOKEN=${DBAAS_NEW_ROLETOKEN}
 			_DATABASE_ADD_HOST_REGISTERPATH=${DBAAS_NEW_REGISTERPATH}
 		fi
@@ -783,7 +753,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Check Role Token
 	#
-	if [ "${_DATABASE_ADD_HOST_ROLETOKEN}" = "X" ] || [ "${_DATABASE_ADD_HOST_REGISTERPATH}" = "X" ]; then
+	if [ -z "${_DATABASE_ADD_HOST_ROLETOKEN}" ] || [ -z "${_DATABASE_ADD_HOST_REGISTERPATH}" ]; then
 		prn_msg "${CRED}Failed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Could not create(find) Role Token."
 		exit 1
 	fi
@@ -803,7 +773,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	_DATABASE_ADD_HOST_SECGRP=""
 	if check_op_security_group "${K2HR3CLI_DBAAS_CLUSTER_NAME}"; then
-		if [ "X${K2HR3CLI_DBAAS_ADD_TARGET}" = "X${_DATABASE_COMMAND_TARGET_SERVER}" ]; then
+		if [ -n "${K2HR3CLI_DBAAS_ADD_TARGET}" ] && [ "${K2HR3CLI_DBAAS_ADD_TARGET}" = "${_DATABASE_COMMAND_TARGET_SERVER}" ]; then
 			_DATABASE_ADD_HOST_SECGRP=$(get_op_security_group_name "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 0)
 		else
 			_DATABASE_ADD_HOST_SECGRP=$(get_op_security_group_name "${K2HR3CLI_DBAAS_CLUSTER_NAME}" 1)
@@ -813,9 +783,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Check Keypair
 	#
-	if [ "X${K2HR3CLI_OPENSTACK_KEYPAIR}" != "X" ]; then
-		check_op_keypair "${K2HR3CLI_OPENSTACK_KEYPAIR}"
-		if [ $? -ne 0 ]; then
+	if [ -n "${K2HR3CLI_OPENSTACK_KEYPAIR}" ]; then
+		if ! check_op_keypair "${K2HR3CLI_OPENSTACK_KEYPAIR}"; then
 			prn_msg "${CRED}Failed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : Could not find keypair(${K2HR3CLI_OPENSTACK_KEYPAIR})."
 			exit 1
 		fi
@@ -824,7 +793,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Check image
 	#
-	if [ "X${K2HR3CLI_OPENSTACK_IMAGE_ID}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPENSTACK_IMAGE_ID}" ]; then
 		if ! check_op_image "${K2HR3CLI_OPENSTACK_IMAGE}"; then
 			prn_msg "${CRED}Failed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : The OS image name is not specified or wrong image name(${K2HR3CLI_COMMAND_OPT_OPENSTACK_IMAGE_LONG} option)."
 			exit 1
@@ -834,7 +803,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Check flavor
 	#
-	if [ "X${K2HR3CLI_OPENSTACK_FLAVOR_ID}" = "X" ]; then
+	if [ -z "${K2HR3CLI_OPENSTACK_FLAVOR_ID}" ]; then
 		if ! check_op_flavor "${K2HR3CLI_OPENSTACK_FLAVOR}"; then
 			prn_msg "${CRED}Failed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster : The flavor name is not specified or flavor name(${K2HR3CLI_COMMAND_OPT_OPENSTACK_FLAVOR_LONG} option)."
 			exit 1
@@ -856,15 +825,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_ADD}" ]; then
 	#
 	# Create Virtual Machine
 	#
-	create_op_host "${_DATABASE_ADD_HOST_POST_DATA}"
-	if [ $? -ne 0 ]; then
+	if ! create_op_host "${_DATABASE_ADD_HOST_POST_DATA}"; then
 		prn_msg "${CRED}Failed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host(${K2HR3CLI_DBAAS_HOST_NAME}) for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster."
 		exit 1
 	fi
 
 	prn_msg "${CGRN}Succeed${CDEF} : Add ${K2HR3CLI_DBAAS_ADD_TARGET} host(${K2HR3CLI_DBAAS_HOST_NAME} - \"${K2HR3CLI_OPENSTACK_CREATED_SERVER_ID}\") for ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster."
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	#
 	# DATABASE DELETE
 	#
@@ -872,8 +840,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	#
 	# Get Scoped Token
 	#
-	complement_scoped_token
-	if [ $? -ne 0 ]; then
+	if ! complement_scoped_token; then
 		exit 1
 	fi
 	prn_dbg "${K2HR3CLI_SCOPED_TOKEN}"
@@ -881,17 +848,20 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 	#
 	# Get OpenStack Scoped Token
 	#
-	complement_op_token
-	if [ $? -ne 0 ]; then
+	if ! complement_op_token; then
 		prn_err "Failed to get OpenStack Scoped Token"
 		exit 1
 	fi
 
-	if [ "X${K2HR3CLI_DBAAS_DELETE_TYPE}" = "X${_DATABASE_COMMAND_TYPE_HOST}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_DELETE_TYPE}" ]; then
+		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the (${_DATABASE_COMMAND_TYPE_HOST} or ${_DATABASE_COMMAND_TYPE_CLUSTER}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+		exit 1
+
+	elif [ "${K2HR3CLI_DBAAS_DELETE_TYPE}" = "${_DATABASE_COMMAND_TYPE_HOST}" ]; then
 		#
 		# HOST DELETE
 		#
-		if [ "X${K2HR3CLI_DBAAS_HOST_NAME}" = "X" ]; then
+		if [ -z "${K2HR3CLI_DBAAS_HOST_NAME}" ]; then
 			prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND} ${K2HR3CLI_DBAAS_DELETE_TYPE}\" must also specify the hostname, please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 			exit 1
 		fi
@@ -900,10 +870,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		# Search host in roles
 		#
 		_DBAAS_FIND_HOST_ROLE=""
-		dbaas_find_role_host "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${_DATABASE_COMMAND_TARGET_SERVER}" "${K2HR3CLI_DBAAS_HOST_NAME}"
-		if [ $? -ne 0 ]; then
-			dbaas_find_role_host "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${_DATABASE_COMMAND_TARGET_SLAVE}" "${K2HR3CLI_DBAAS_HOST_NAME}"
-			if [ $? -ne 0 ]; then
+		if ! dbaas_find_role_host "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${_DATABASE_COMMAND_TARGET_SERVER}" "${K2HR3CLI_DBAAS_HOST_NAME}"; then
+			if ! dbaas_find_role_host "${K2HR3CLI_DBAAS_CLUSTER_NAME}/${_DATABASE_COMMAND_TARGET_SLAVE}" "${K2HR3CLI_DBAAS_HOST_NAME}"; then
 				prn_msg "${CRED}Failed${CDEF} : Not found ${K2HR3CLI_DBAAS_HOST_NAME} in ${K2HR3CLI_DBAAS_CLUSTER_NAME} role."
 				exit 1
 			else
@@ -916,9 +884,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Delete host in OpenStack
 		#
-		if [ "X${DBAAS_FIND_ROLE_HOST_CUK}" != "X" ]; then
-			delete_op_host "${DBAAS_FIND_ROLE_HOST_CUK}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${DBAAS_FIND_ROLE_HOST_CUK}" ]; then
+			if ! delete_op_host "${DBAAS_FIND_ROLE_HOST_CUK}"; then
 				prn_msg "${CRED}Failed${CDEF} : Delete ${K2HR3CLI_DBAAS_HOST_NAME} from OpenStack."
 				exit 1
 			fi
@@ -929,15 +896,14 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Delete host from role
 		#
-		dbaas_delete_role_host "${_DBAAS_FIND_HOST_ROLE}" "${DBAAS_FIND_ROLE_HOST_NAME}" "${DBAAS_FIND_ROLE_HOST_PORT}" "${DBAAS_FIND_ROLE_HOST_CUK}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host "${_DBAAS_FIND_HOST_ROLE}" "${DBAAS_FIND_ROLE_HOST_NAME}" "${DBAAS_FIND_ROLE_HOST_PORT}" "${DBAAS_FIND_ROLE_HOST_CUK}"; then
 			prn_msg "${CRED}Failed${CDEF} : Delete ${K2HR3CLI_DBAAS_HOST_NAME} from ${K2HR3CLI_DBAAS_CLUSTER_NAME} role"
 			exit 1
 		fi
 
 		prn_msg "${CGRN}Succeed${CDEF} : Delete host ${K2HR3CLI_DBAAS_HOST_NAME} from ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster(OpenStack and K2HR3)."
 
-	elif [ "X${K2HR3CLI_DBAAS_DELETE_TYPE}" = "X${_DATABASE_COMMAND_TYPE_CLUSTER}" ]; then
+	elif [ "${K2HR3CLI_DBAAS_DELETE_TYPE}" = "${_DATABASE_COMMAND_TYPE_CLUSTER}" ]; then
 		#
 		# CLUSTER DELETE
 		#
@@ -945,12 +911,12 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Special Message and need confirm
 		#
-		if [ "X${K2HR3CLI_OPENSTACK_CONFIRM_YES}" != "X1" ]; then
+		if [ -z "${K2HR3CLI_OPENSTACK_CONFIRM_YES}" ] || [ "${K2HR3CLI_OPENSTACK_CONFIRM_YES}" != "1" ]; then
 			_OLD_K2HR3CLI_OPT_INTERACTIVE=${K2HR3CLI_OPT_INTERACTIVE}
 			K2HR3CLI_OPT_INTERACTIVE=1
 
 			completion_variable_auto "_DBAAS_DELETE_CONFIRM" "${CRED}[IMPORTANT CONFIRM]${CDEF} You will lose all data/server in your cluster, Do you still want to run it? (y/n) " 0
-			if [ "X${_DBAAS_DELETE_CONFIRM}" != "Xy" ] && [ "X${_DBAAS_DELETE_CONFIRM}" != "Xyes" ] && [ "X${_DBAAS_DELETE_CONFIRM}" != "XY" ] && [ "X${_DBAAS_DELETE_CONFIRM}" != "XYES" ]; then
+			if [ -z "${_DBAAS_DELETE_CONFIRM}" ] || { [ "${_DBAAS_DELETE_CONFIRM}" != "y" ] && [ "${_DBAAS_DELETE_CONFIRM}" != "yes" ] && [ "${_DBAAS_DELETE_CONFIRM}" != "Y" ] && [ "${_DBAAS_DELETE_CONFIRM}" != "YES" ]; }; then
 				exit 0
 			fi
 			K2HR3CLI_OPT_INTERACTIVE=${_OLD_K2HR3CLI_OPT_INTERACTIVE}
@@ -960,8 +926,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Delete all host from OpenStack and K2HR3
 		#
-		dbaas_delete_role_host_all "${K2HR3CLI_DBAAS_CLUSTER_NAME}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_role_host_all "${K2HR3CLI_DBAAS_CLUSTER_NAME}"; then
 			prn_msg "${CRED}Failed${CDEF} : Delete ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster, because could not delele a host."
 			exit 1
 		fi
@@ -969,8 +934,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Delete Security Group
 		#
-		delete_op_security_groups "${K2HR3CLI_DBAAS_CLUSTER_NAME}"
-		if [ $? -ne 0 ]; then
+		if ! delete_op_security_groups "${K2HR3CLI_DBAAS_CLUSTER_NAME}"; then
 			prn_msg "${CRED}Failed${CDEF} : Delete ${K2HR3CLI_DBAAS_CLUSTER_NAME} cluster, because could not delele security groups."
 			exit 1
 		fi
@@ -978,8 +942,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		#
 		# Delete all in K2HR3
 		#
-		dbaas_delete_all_k2hr3 "${K2HR3CLI_DBAAS_CLUSTER_NAME}"
-		if [ $? -ne 0 ]; then
+		if ! dbaas_delete_all_k2hr3 "${K2HR3CLI_DBAAS_CLUSTER_NAME}"; then
 			prn_msg "${CRED}Failed${CDEF} : Delete ${K2HR3CLI_DBAAS_CLUSTER_NAME} in K2HR3."
 			exit 1
 		fi
@@ -991,11 +954,15 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_DELETE}" ]; then
 		exit 1
 	fi
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 	#
 	# OPENSTACK TOKEN
 	#
-	if [ "X${K2HR3CLI_DBAAS_OPENSTACK_TYPE}" = "X${_DATABASE_COMMAND_TYPE_OPUTOKEN}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_OPENSTACK_TYPE}" ]; then
+		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the token type(${_DATABASE_COMMAND_TYPE_OPUTOKEN} or ${_DATABASE_COMMAND_TYPE_OPTOKEN}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+		exit 1
+
+	elif [ "${K2HR3CLI_DBAAS_OPENSTACK_TYPE}" = "${_DATABASE_COMMAND_TYPE_OPUTOKEN}" ]; then
 		#
 		# CREATE UNSCOPED TOKEN
 		#
@@ -1008,8 +975,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 		#
 		# Create new token
 		#
-		complement_op_utoken
-		if [ $? -ne 0 ]; then
+		if ! complement_op_utoken; then
 			prn_err "Failed to create OpenStack Unscoped Token"
 			exit 1
 		fi
@@ -1017,16 +983,15 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 		#
 		# Save
 		#
-		if [ "X${K2HR3CLI_OPT_SAVE}" = "X1" ]; then
-			config_default_set_key "K2HR3CLI_OPENSTACK_TOKEN" "${K2HR3CLI_OPENSTACK_TOKEN}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${K2HR3CLI_OPT_SAVE}" ] && [ "${K2HR3CLI_OPT_SAVE}" = "1" ]; then
+			if ! config_default_set_key "K2HR3CLI_OPENSTACK_TOKEN" "${K2HR3CLI_OPENSTACK_TOKEN}"; then
 				prn_err "Created OpenStack Unscoped Token, but failed to save it to configuration."
 				exit 1
 			fi
 		fi
 		prn_msg "${K2HR3CLI_OPENSTACK_TOKEN}"
 
-	elif [ "X${K2HR3CLI_DBAAS_OPENSTACK_TYPE}" = "X${_DATABASE_COMMAND_TYPE_OPTOKEN}" ]; then
+	elif [ "${K2HR3CLI_DBAAS_OPENSTACK_TYPE}" = "${_DATABASE_COMMAND_TYPE_OPTOKEN}" ]; then
 		#
 		# CREATE SCOPED TOKEN
 		#
@@ -1034,8 +999,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 		#
 		# Create new token
 		#
-		complement_op_token
-		if [ $? -ne 0 ]; then
+		if ! complement_op_token; then
 			prn_err "Failed to create OpenStack Scoped Token"
 			exit 1
 		fi
@@ -1043,9 +1007,8 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 		#
 		# Save
 		#
-		if [ "X${K2HR3CLI_OPT_SAVE}" = "X1" ]; then
-			config_default_set_key "K2HR3CLI_OPENSTACK_TOKEN" "${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}"
-			if [ $? -ne 0 ]; then
+		if [ -n "${K2HR3CLI_OPT_SAVE}" ] && [ "${K2HR3CLI_OPT_SAVE}" = "1" ]; then
+			if ! config_default_set_key "K2HR3CLI_OPENSTACK_TOKEN" "${K2HR3CLI_OPENSTACK_SCOPED_TOKEN}"; then
 				prn_err "Created OpenStack Scoped Token, but failed to save it to configuration."
 				exit 1
 			fi
@@ -1057,7 +1020,7 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_OPENSTACK}" ]; then
 		exit 1
 	fi
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_LIST}" ]; then
+elif [ "${K2HR3CLI_SUBCOMMAND}" = "${_DATABASE_COMMAND_SUB_LIST}" ]; then
 	#
 	# LIST IMAGES/FLAVORS
 	#
@@ -1065,23 +1028,25 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_LIST}" ]; then
 	#
 	# Get OpenStack Scoped Token
 	#
-	complement_op_token
-	if [ $? -ne 0 ]; then
+	if ! complement_op_token; then
 		prn_err "Failed to get OpenStack Scoped Token"
 		exit 1
 	fi
 
-	if [ "X${K2HR3CLI_DBAAS_LIST_TYPE}" = "X${_DATABASE_COMMAND_TYPE_IMAGES}" ]; then
+	if [ -z "${K2HR3CLI_DBAAS_LIST_TYPE}" ]; then
+		prn_err "\"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_SUBCOMMAND}\" must also specify the list type(${_DATABASE_COMMAND_TYPE_IMAGES} or ${_DATABASE_COMMAND_TYPE_FLAVORS}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
+		exit 1
+
+	elif [ "${K2HR3CLI_DBAAS_LIST_TYPE}" = "${_DATABASE_COMMAND_TYPE_IMAGES}" ]; then
 		#
 		# List images
 		#
-		display_op_image_list
-		if [ $? -ne 0 ]; then
+		if ! display_op_image_list; then
 			prn_msg "${CRED}Failed${CDEF} : List OpenStack Images."
 			return 1
 		fi
 
-	elif [ "X${K2HR3CLI_DBAAS_LIST_TYPE}" = "X${_DATABASE_COMMAND_TYPE_FLAVORS}" ]; then
+	elif [ "${K2HR3CLI_DBAAS_LIST_TYPE}" = "${_DATABASE_COMMAND_TYPE_FLAVORS}" ]; then
 		#
 		# List flavors
 		#
@@ -1089,14 +1054,12 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_LIST}" ]; then
 		#
 		# Get tenant id
 		#
-		complement_op_tenant
-		if [ $? -ne 0 ]; then
+		if ! complement_op_tenant; then
 			prn_err "Failed to get OpenStack Tenant"
 			return 1
 		fi
 
-		display_op_flavor_list
-		if [ $? -ne 0 ]; then
+		if ! display_op_flavor_list; then
 			prn_msg "${CRED}Failed${CDEF} : List OpenStack Flavors."
 			return 1
 		fi
@@ -1105,9 +1068,6 @@ elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X${_DATABASE_COMMAND_SUB_LIST}" ]; then
 		exit 1
 	fi
 
-elif [ "X${K2HR3CLI_SUBCOMMAND}" = "X" ]; then
-	prn_err "\"${BINNAME} ${K2HR3CLI_MODE}\" must also specify the subcommand(${_DATABASE_COMMAND_SUB_CREATE}, ${_DATABASE_COMMAND_SUB_SHOW}, ${_DATABASE_COMMAND_SUB_ADD} or ${_DATABASE_COMMAND_SUB_DELETE}), please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
-	exit 1
 else
 	prn_err "Unknown subcommand(\"${K2HR3CLI_SUBCOMMAND}\") is specified, please run \"${BINNAME} ${K2HR3CLI_MODE} ${K2HR3CLI_COMMON_OPT_HELP_LONG}(${K2HR3CLI_COMMON_OPT_HELP_SHORT})\" for confirmation."
 	exit 1
