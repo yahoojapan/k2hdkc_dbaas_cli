@@ -79,7 +79,7 @@ complement_op_user_name()
 	completion_variable_auto "K2HR3CLI_OPENSTACK_USER" "OpenStack User name: " 1
 	_TOKEN_LIB_RESULT_TMP=$?
 	prn_dbg "(complement_op_user_name) OpenStack User name = \"${K2HR3CLI_OPENSTACK_USER}\"."
-	return ${_TOKEN_LIB_RESULT_TMP}
+	return "${_TOKEN_LIB_RESULT_TMP}"
 }
 
 #
@@ -126,7 +126,7 @@ complement_op_user_passphrase()
 	completion_variable_auto "K2HR3CLI_OPENSTACK_PASS" "OpenStack User passphrase: " 1 1
 	_TOKEN_LIB_RESULT_TMP=$?
 	prn_dbg "(complement_op_user_passphrase) OpenStack User passphrase = \"*****(${#K2HR3CLI_OPENSTACK_PASS})\"."
-	return ${_TOKEN_LIB_RESULT_TMP}
+	return "${_TOKEN_LIB_RESULT_TMP}"
 }
 
 #
@@ -173,7 +173,7 @@ complement_op_tenant()
 	completion_variable_auto "K2HR3CLI_OPENSTACK_TENANT" "OpenStack Project(tenant) name: " 1
 	_TOKEN_LIB_RESULT_TMP=$?
 	prn_dbg "(complement_op_tenant) OpenStack Project(tenant) name = \"${K2HR3CLI_OPENSTACK_TENANT}\"."
-	return ${_TOKEN_LIB_RESULT_TMP}
+	return "${_TOKEN_LIB_RESULT_TMP}"
 }
 
 #
