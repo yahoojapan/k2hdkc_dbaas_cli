@@ -163,7 +163,7 @@ for SUBTESTBIN in ${TEST_FILES}; do
 		SUBTEST_RESULT=1
 	fi
 
-	if [ ${SUBTEST_RESULT} -eq 0 ]; then
+	if [ "${SUBTEST_RESULT}" -eq 0 ]; then
 		echo "  => ${CGRN}Succeed${CDEF}" | tee -a "${TEST_ALL_LOGFILE}"
 	else
 		ALL_TEST_RESULT=1
@@ -174,7 +174,7 @@ for SUBTESTBIN in ${TEST_FILES}; do
 	#
 	# Add Summary
 	#
-	if [ ${SUBTEST_RESULT} -eq 0 ]; then
+	if [ "${SUBTEST_RESULT}" -eq 0 ]; then
 		echo "  ${CGRN}PASS${CDEF} : ${SUBTEST_TITLE}" >> "${TEST_SUMMARY_FILE}"
 	else
 		echo "  ${CRED}FAIL${CDEF} : ${SUBTEST_TITLE}" >> "${TEST_SUMMARY_FILE}"
@@ -193,14 +193,14 @@ fi
 # Result(Footer)
 #
 echo "" | tee -a "${TEST_ALL_LOGFILE}"
-if [ ${ALL_TEST_RESULT} -eq 0 ]; then
+if [ "${ALL_TEST_RESULT}" -eq 0 ]; then
 	echo "All Test ${CGRN}PASSED${CDEF} ($(date -R))" | tee -a "${TEST_ALL_LOGFILE}"
 else
 	echo "All Test ${CRED}FAILED${CDEF} ($(date -R))" | tee -a "${TEST_ALL_LOGFILE}"
 fi
 echo ""
 
-exit ${ALL_TEST_RESULT}
+exit "${ALL_TEST_RESULT}"
 
 #
 # Local variables:

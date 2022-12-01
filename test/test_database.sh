@@ -360,7 +360,7 @@ if ! test_update_snapshot; then
 	TEST_EXIT_CODE=1
 fi
 
-exit ${TEST_EXIT_CODE}
+exit "${TEST_EXIT_CODE}"
 
 #
 # Local variables:
