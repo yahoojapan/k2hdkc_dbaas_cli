@@ -1,3 +1,21 @@
+k2hdkc-dbaas-cli (1.0.4) unstable; urgency=low
+
+  * Changed CI OSs and added Alpine OS - #20
+  * Updated header and footer in comment lines - #19
+  * Updated issue/pullrequest templates and README.md - #18
+  * Reviewed ShellCheck processing and updated .gitignore - #17
+  * Reviewed ShellCheck processing and fixed bugs - #16
+  * Eliminated unnecessary copies in build_helper.sh - #15
+  * Updated github actions process and support os, and fixed bugs - #14
+  * Updated debian_build.sh for grep parameter and updated configure.ac - #13
+  * Updated common build scripts - #12
+  * Updated buld tools(Makefile.am and build_helper.sh) - #11
+  * Separated the shellcheck process in the build process - #10
+  * Updated Antpickax common scripts and tools under the buildutils directory - #9
+  * Enabled external customization of configure.ac and fixed for building - #8
+
+ -- Takeshi Nakatani <ggtakec@gmail.com>  Wed, 15 Feb 2023 11:40:53 +0900
+
 k2hdkc-dbaas-cli (1.0.3) unstable; urgency=low
 
   * Updated README.md for launch K2HDKC DBaaS K8S CLI - #6
