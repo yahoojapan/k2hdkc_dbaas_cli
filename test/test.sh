@@ -99,18 +99,6 @@ TEST_IDENTITY_URI="http://localhost:8080"
 set -- "--config" "${TESTDIR}/k2hr3.config" "--apiuri" "http://localhost" "--openstack_identity_uri" "${TEST_IDENTITY_URI}" "--dbaas_config" "${TESTDIR}/../src/libexec/database"
 
 #---------------------------------------------------------------------
-# Functions
-#---------------------------------------------------------------------
-func_usage()
-{
-	echo ""
-	echo "Usage: ${TESTMAINBIN} [option...]"
-	echo "	     --update(-u)   update the test result comparison file with the current test result."
-	echo "	     --help(-h)     print help."
-	echo ""
-}
-
-#---------------------------------------------------------------------
 # Test all
 #---------------------------------------------------------------------
 #
