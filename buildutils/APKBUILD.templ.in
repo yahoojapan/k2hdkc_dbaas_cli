@@ -1,0 +1,127 @@
+#
+# K2HDKC DBaaS Command Line Interface - K2HR3 CLI Plugin
+#
+# Copyright 2020 Yahoo Japan Corporation.
+#
+# K2HDKC DBaaS is a DataBase as a Service provided by Yahoo! JAPAN
+# which is built K2HR3 as a backend and provides services in
+# cooperation with OpenStack.
+# The Override configuration for K2HDKC DBaaS serves to connect the
+# components that make up the K2HDKC DBaaS. K2HDKC, K2HR3, CHMPX,
+# and K2HASH are components provided as AntPickax.
+#
+# For the full copyright and license information, please view
+# the license file that was distributed with this source code.
+#
+# AUTHOR:   Takeshi Nakatani
+# CREATE:   Wed, 8 Feb 2023
+# REVISION:
+#
+
+#---------------------------------------------------------------
+# Local varibales as antpickax template
+#---------------------------------------------------------------
+#
+# Set variables by configure
+#
+_git_domain="@GIT_DOMAIN@"
+_organization_name="@GIT_ORG@"
+_repository_name="@GIT_REPO@"
+
+#
+# Set variables by apk_build.sh
+#
+_package_revision=%%BUILD_NUMBER%%
+_configure_option=%%CONFIGUREOPT%%
+_source_archive_url=%%SOURCE_ARCHIVE_URL%%
+
+#---------------------------------------------------------------
+# Main variables for APKBUILD
+#---------------------------------------------------------------
+# Contributor: @DEV_NAME@ <@DEV_EMAIL@>
+# Maintainer: @DEV_NAME@ <@DEV_EMAIL@>
+
+# [NOTE]
+# The $_organization_name is "k2hdkc_dbaas_cli", but the $pkgname
+# should be "k2hdkc-dbaas-cli", so adjust with this variable.
+#
+pkgname="k2hdkc-dbaas-cli"
+pkgver=@PKG_VERSION@
+pkgrel=$_package_revision
+pkgdesc="K2HDKC DBaaS Command Line Interface"
+
+url="https://k2hr3.antpick.ax/"
+arch="x86_64"
+license="MIT"
+
+depends="
+	curl
+"
+depends_dev=""
+makedepends="
+	$depends_dev
+	autoconf
+	automake
+	musl-locales
+	procps
+"
+
+install=""
+subpackages=""
+
+source="$pkgname-$pkgver.tar.gz%%SOURCE_ARCHIVE_URL%%"
+
+builddir="$srcdir/$pkgname-$pkgver"
+
+#---------------------------------------------------------------
+# Build functions for APKBUILD
+#---------------------------------------------------------------
+prepare() {
+	default_prepare
+	# this function can be omitted if no extra steps are needed
+}
+
+unpack() {
+	default_unpack
+
+	# [NOTE]
+	# A github release archive is unzipped as a directory with the
+	# repository name(k2hdkc_dbaas_cli) and version number.
+	# In this case, change the directory name to the package name
+	# (k2hdkc-dbaas-cli) instead of the repository name.
+	#
+	if [ -d "$_repository_name-$pkgver" ]; then
+		mv "$_repository_name-$pkgver" "$pkgname-$pkgver"
+	fi
+}
+
+build() {
+	if [ ! -f configure ]; then
+		./autogen.sh
+	fi
+	./configure --prefix=/usr $_configure_option
+	make build
+}
+
+check() {
+	make check
+}
+
+package() {
+	install -Dm 0444 src/libexec/database/CREDIT                            "$pkgdir"/usr/libexec/k2hr3/database/CREDIT
+	install -Dm 0444 src/libexec/database/VERSION                           "$pkgdir"/usr/libexec/k2hr3/database/VERSION
+	install -Dm 0444 src/libexec/database/k2hdkc_dbaas_create_host.templ    "$pkgdir"/usr/libexec/k2hr3/database/k2hdkc_dbaas_create_host.templ
+	install -Dm 0444 src/libexec/database/k2hdkc_dbaas_resource_keys.config "$pkgdir"/usr/libexec/k2hr3/database/k2hdkc_dbaas_resource_keys.config
+	install -Dm 0444 src/libexec/database/k2hdkc_dbaas_resource.templ       "$pkgdir"/usr/libexec/k2hr3/database/k2hdkc_dbaas_resource.templ
+	install -Dm 0444 src/libexec/database/command.sh                        "$pkgdir"/usr/libexec/k2hr3/database/command.sh
+	install -Dm 0444 src/libexec/database/functions.sh                      "$pkgdir"/usr/libexec/k2hr3/database/functions.sh
+	install -Dm 0444 src/libexec/database/help.sh                           "$pkgdir"/usr/libexec/k2hr3/database/help.sh
+	install -Dm 0444 src/libexec/database/openstack.sh                      "$pkgdir"/usr/libexec/k2hr3/database/openstack.sh
+	install -Dm 0444 src/libexec/database/options.sh                        "$pkgdir"/usr/libexec/k2hr3/database/options.sh
+	install -Dm 0444 src/libexec/database/summary.sh                        "$pkgdir"/usr/libexec/k2hr3/database/summary.sh
+	install -Dm 0444 src/libexec/database/variables.sh                      "$pkgdir"/usr/libexec/k2hr3/database/variables.sh
+}
+
+# [NOTE]
+# Subsequent lines print the checksum of the source archive.
+#
