@@ -55,7 +55,7 @@ arch="x86_64"
 license="MIT"
 
 depends="
-	curl
+	k2hr3-cli
 "
 depends_dev=""
 makedepends="

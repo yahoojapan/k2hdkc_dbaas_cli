@@ -231,7 +231,7 @@ elif [ "${CI_OSTYPE}" = "fedora:36" ]; then
 
 elif [ "${CI_OSTYPE}" = "alpine:3.17" ]; then
 	DIST_TAG="alpine/v3.17"
-	INSTALL_PKG_LIST="bash sudo alpine-sdk automake autoconf util-linux-misc musl-locales ruby-dev procps coreutils"
+	INSTALL_PKG_LIST="bash sudo alpine-sdk automake autoconf util-linux-misc musl-locales ruby-dev procps coreutils k2hr3-cli"
 	INSTALLER_BIN="apk"
 	UPDATE_CMD="update"
 	UPDATE_CMD_ARG="--no-progress"
