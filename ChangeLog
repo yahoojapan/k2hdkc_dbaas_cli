@@ -1,3 +1,10 @@
+k2hdkc-dbaas-cli (1.0.8) unstable; urgency=low
+
+  * Updated tool scripts and support OSs #29
+  * Fixed .gitignore to exclude APKBUILD.templ - #28
+
+ -- Takeshi Nakatani <ggtakec@gmail.com>  Fri, 01 Sep 2023 16:15:42 +0900
+
 k2hdkc-dbaas-cli (1.0.7) unstable; urgency=low
 
   * Changed due to k2hr3cli insecure communication support - #26
