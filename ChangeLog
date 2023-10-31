@@ -1,3 +1,9 @@
+k2hdkc-dbaas-cli (1.0.9) unstable; urgency=low
+
+  * Changed support OS (fedora and ubuntu) and updated tool - #31
+
+ -- Takeshi Nakatani <ggtakec@gmail.com>  Tue, 31 Oct 2023 12:29:28 +0900
+
 k2hdkc-dbaas-cli (1.0.8) unstable; urgency=low
 
   * Updated tool scripts and support OSs #29
