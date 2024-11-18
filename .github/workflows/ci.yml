@@ -56,16 +56,16 @@ jobs:
       #
       matrix:
         container:
+          - ubuntu:24.04
           - ubuntu:22.04
           - ubuntu:20.04
           - debian:bookworm
           - debian:bullseye
-          - debian:buster
           - rockylinux:9
           - rockylinux:8
-          - centos:centos7
-          - fedora:39
-          - fedora:38
+          - fedora:41
+          - fedora:40
+          - alpine:3.20
           - alpine:3.19
           - alpine:3.18
 
