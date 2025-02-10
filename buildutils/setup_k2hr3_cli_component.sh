@@ -44,11 +44,14 @@ GIT_CONFIG_FILE="${GIT_DIR}/config"
 #
 # k2hr3_cli default
 #
+SPECIFIED_K2HR3_CLI_PATH_ENV=1
 if [ -z "${DEFAULT_GIT_DOMAIN}" ]; then
 	DEFAULT_GIT_DOMAIN="github.com"
+	SPECIFIED_K2HR3_CLI_PATH_ENV=0
 fi
 if [ -z "${DEFAULT_K2HR3_CLI_ORG}" ]; then
 	DEFAULT_K2HR3_CLI_ORG="yahoojapan"
+	SPECIFIED_K2HR3_CLI_PATH_ENV=0
 fi
 if [ -z "${K2HR3_CLI_REPO_NAME}" ]; then
 	K2HR3_CLI_REPO_NAME="k2hr3_cli"
@@ -86,25 +89,32 @@ while [ $# -ne 0 ]; do
 	if [ -z "$1" ]; then
 		break;
 
-	elif [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
+	elif echo "$1" | grep -q -i -e "^-h$" -e "^--help$"; then
 		func_usage "${PRGNAME}"
 		exit 0
 
-	elif [ "$1" = "--clean" ] || [ "$1" = "--CLEAN" ] || [ "$1" = "-c" ] || [ "$1" = "-C" ]; then
+	elif echo "$1" | grep -q -i -e "^-c$" -e "^--clean$"; then
 		if [ "${IS_CLEANUP}" -eq 1 ]; then
 			echo "[ERROR] ${PRGNAME} - Already specified \"$1\" option." 1>&2
 			exit 1
 		fi
 		IS_CLEANUP=1
 
-	elif [ "$1" = "--force_archive" ] || [ "$1" = "--FORCE_ARCHIVE" ] || [ "$1" = "-f" ] || [ "$1" = "-F" ]; then
+	elif echo "$1" | grep -q -i -e "^-f$" -e "^--force_archive$"; then
 		if [ "${USE_ARCHIVE}" -eq 1 ]; then
 			echo "[ERROR] ${PRGNAME} - Already specified \"$1\" option." 1>&2
 			exit 1
 		fi
 		USE_ARCHIVE=1
 
-	elif [ "$1" = "--k2hr3_cli_repo" ] || [ "$1" = "--K2HR3_CLI_REPO" ]; then
+		#
+		# Force
+		#
+		if [ "${SPECIFIED_K2HR3_CLI_PATH_ENV}" -eq 1 ]; then
+			SPECIFIED_K2HR3_CLI_PATH_ENV=0
+		fi
+
+	elif echo "$1" | grep -q -i "^--k2hr3_cli_repo$"; then
 		if [ -n "${_TMP_K2HR3_CLI_REPO_NAME}" ]; then
 			echo "[ERROR] ${PRGNAME} - Already specified \"$1\" option." 1>&2
 			exit 1
@@ -175,7 +185,7 @@ if [ "${USE_GIT_CONFIG}" -eq 1 ]; then
 	#
 	echo "[INFO] ${PRGNAME} - Check .git/config for git domain and organaiztion" 1>&2
 
-	GIT_URL_THIS_REPO=$(grep '^[[:space:]]*url[[:space:]]*=[[:space:]]*' .git/config | grep '.git$' | head -1 | sed -e 's/^[[:space:]]*url[[:space:]]*=[[:space:]]*//g')
+	GIT_URL_THIS_REPO=$(grep -i '^[[:space:]]*url[[:space:]]*=[[:space:]]*' .git/config | sed -e 's/^[[:space:]]*url[[:space:]]*=[[:space:]]*//gi')
 
 	if [ -n "${GIT_URL_THIS_REPO}" ]; then
 		#
@@ -199,6 +209,13 @@ if [ "${USE_GIT_CONFIG}" -eq 1 ]; then
 else
 	echo "[INFO] ${PRGNAME} - .git/config is not existed." 1>&2
 	USE_ARCHIVE=1
+	GIT_DOMAIN_NAME=${DEFAULT_GIT_DOMAIN}
+	GIT_ORG_NAME=${DEFAULT_K2HR3_CLI_ORG}
+fi
+
+if [ "${USE_ARCHIVE}" -eq 1 ] && [ "${SPECIFIED_K2HR3_CLI_PATH_ENV}" -eq 1 ] && [ -n "${DEFAULT_GIT_DOMAIN}" ] && [ -n "${DEFAULT_K2HR3_CLI_ORG}" ]; then
+	echo "[INFO] ${PRGNAME} - Since the k2hr3_cli repository path is specified in the environment, use it to clone instead of downloading the archive." 1>&2
+	USE_ARCHIVE=0
 	GIT_DOMAIN_NAME=${DEFAULT_GIT_DOMAIN}
 	GIT_ORG_NAME=${DEFAULT_K2HR3_CLI_ORG}
 fi
