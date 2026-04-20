@@ -1,3 +1,9 @@
+k2hdkc-dbaas-cli (1.0.18) unstable; urgency=low
+
+  * Bumpup the version number to 1.0.18
+
+ -- Takeshi Nakatani <ggtakec@gmail.com>  Mon, 20 Apr 2026 18:53:15 +0900
+
 k2hdkc-dbaas-cli (1.0.17) unstable; urgency=low
 
   * Changed support OS and Fixed some code - #47
